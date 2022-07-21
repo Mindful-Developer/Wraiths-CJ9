@@ -25,4 +25,4 @@ jobs:
     - name: Install Dependencies
       run: pip install mypy
     - name: mypy
-      run: mypy $(git ls-files '*.py')
+      run: mypy --config-file mypy.ini $(git ls-files '*.py')
