@@ -3,7 +3,7 @@ name: Mypy
 on: [pull_request]
 
 # Concurrency control to prevent multiple mypy runs on the same PR
-concurrency: 
+concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
