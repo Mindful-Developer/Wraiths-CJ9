@@ -1,0 +1,28 @@
+# Check files with mypy on any pull_request
+name: Mypy
+on: [pull_request]
+
+# Concurrency control to prevent multiple mypy runs on the same PR
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Configure the environment and run mypy on the PR
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      PYTHON_VERSION: "3.10"
+    name: Mypy
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    - name: Upgrade pip
+      run: pip install --upgrade pip
+    - name: Install Dependencies
+      run: pip install mypy
+    - name: mypy
+      run: mypy --config-file mypy.ini $(git ls-files '*.py')
