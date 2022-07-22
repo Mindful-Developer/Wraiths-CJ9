@@ -5,7 +5,6 @@ from random import randint as rnt
 
 # Read the image
 the_image = cv.imread('image.jpg')
-print(the_image)
 
 
 
