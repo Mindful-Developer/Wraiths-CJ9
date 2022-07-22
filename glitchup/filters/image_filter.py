@@ -22,6 +22,6 @@ class ImageFilter(ABC):
         pass
 
     @abstractmethod
-    def apply(self, image: Mat, params: dict[str, Any]):
+    def apply(self, image: Mat, params: dict[str, Any]) -> None:
         """Apply the filter to the image."""
         pass

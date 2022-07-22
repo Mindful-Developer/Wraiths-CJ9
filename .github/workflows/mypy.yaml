@@ -23,6 +23,6 @@ jobs:
     - name: Upgrade pip
       run: pip install --upgrade pip
     - name: Install Dependencies
-      run: pip install mypy
+      run: pip install -r dev-requirements.txt
     - name: mypy
       run: mypy --config-file mypy.ini $(git ls-files '*.py')
