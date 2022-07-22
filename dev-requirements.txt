@@ -17,3 +17,4 @@ aiohttp~=3.8.0
 fastapi~=0.79
 rq~=1.10.0
 attrs~=21.4.0
+numpy~=1.23.1
