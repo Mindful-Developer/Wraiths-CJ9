@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Any, List, Tuple
 import cv2 as cv
 from matplotlib.pyplot import get
 import numpy as np
@@ -9,10 +9,10 @@ from random import randint as rnt
 
 
 
-def dottedfilter(img: np.ndarray, quantity: int=30000) -> np.ndarray:
+def dottedfilter(img: np.ndarray, quantity: int=30000) -> None:
 
-    def get_rgb_colors(theimg: np.ndarray, num: int):
-        def create_bar(height, width, color):
+    def get_rgb_colors(theimg: np.ndarray, num: int) -> tuple[List[Any], List[Any]]:
+        def create_bar(height: int, width: int, color: Any) -> tuple[Any, Any]:
             # print(color)
             bar = np.zeros((height, width, 3), np.uint8)
             bar[:] = color
@@ -46,24 +46,27 @@ def dottedfilter(img: np.ndarray, quantity: int=30000) -> np.ndarray:
         for index, row in enumerate(rgb_values):
             image = cv.putText(img_bar, f'{index + 1}. RGB: {row}', (5 + 200 * index, 200 - 10),
                                 font, 0.5, (255, 0, 0), 1, cv.LINE_AA)
-            # print(f'{index + 1}. RGB{row}')
+
             colors.append(row)
-            # print(row)
+
         return colors, img_bar
 
-    def modify(img, times, colors):
-        # print(num)
+    def modify(img: np.ndarray, times: int, colors: List[Any]) -> None:
+
         for x in range(times):
             num = (rnt(0, img.shape[1]), rnt(0, img.shape[0]))
-            # num2 = (rnt(0, img.shape[1]), rnt(0, img.shape[0]))
-            # print(x)
+
             cv.rectangle(img, num, (num[0],num[1]), (colors[rnt(0, len(colors)-1)]), cv.FILLED)
 
+        return
 
-    # cv.imshow('Cat', img)
+
     colors, pallette_bar = get_rgb_colors(img, 3)
-# print()
+
+
     modify(img, quantity, colors)
+
+    return
 
 
 # Apply the filter
