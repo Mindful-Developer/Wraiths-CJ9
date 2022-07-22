@@ -6,12 +6,15 @@ from __future__ import annotations
 from enum import Enum, auto
 from typing import Any, Optional, TypeAlias, Union
 
+from attrs import define, field
+
 __all__ = ("Parameter",)
 
 # tuple[int | float, int | float] | None (mypy doesn't like this; the type below hopefully is temporary)
 PARAM_RANGE: TypeAlias = Optional[tuple[Union[int, float], Union[int, float]]]
 
 
+@define
 class Parameter:
     """Configurable parameter of a filter"""
 
@@ -19,22 +22,15 @@ class Parameter:
         INT = auto()
         FLOAT = auto()
 
-    def __init__(
-        self,
-        param_type: ParamType,
-        name: str,
-        default: int | float,
-        param_range: PARAM_RANGE = None,
-    ):
-        self._type = param_type
-        self._name = name
-        self._default = default
-        self._range = param_range
+    _param_type: ParamType
+    _name: str
+    _default: int | float
+    _param_range: PARAM_RANGE = field(default=None)
 
     @property
     def param_type(self) -> ParamType:
         """Type of the parameter"""
-        return self._type
+        return self._param_type
 
     @property
     def name(self) -> str:
@@ -49,7 +45,7 @@ class Parameter:
     @property
     def param_range(self) -> PARAM_RANGE:
         """Return the range of the parameter"""
-        return self._range
+        return self._param_range
 
     def to_dict(self) -> dict[str, Any]:
         """Return a dictionary representation of the parameter"""
