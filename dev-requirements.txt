@@ -11,4 +11,8 @@ pre-commit~=2.17.0
 flake8-docstrings~=1.6.0
 
 # Added tools
-mypy==0.971
+mypy~=0.971
+opencv-python~=4.6.0
+aiohttp~=3.8.0
+fastapi~=0.79
+rq~=1.10.0
