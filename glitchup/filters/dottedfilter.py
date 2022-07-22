@@ -1,17 +1,17 @@
-from typing import Any, List, Tuple
+from typing import Any, List
 import cv2 as cv
-from matplotlib.pyplot import get
 import numpy as np
 from random import randint as rnt
 
 # Read the image
-# the_image = cv.imread('image.jpg')
+the_image = cv.imread('image.jpg')
+print(the_image)
 
 
 
-def dottedfilter(img: np.ndarray, quantity: int=30000) -> None:
+def dottedfilter(img: Any, quantity: int=30000) -> None:
 
-    def get_rgb_colors(theimg: np.ndarray, num: int) -> tuple[List[Any], List[Any]]:
+    def get_rgb_colors(theimg: Any, num: int) -> tuple[Any, Any]:
         def create_bar(height: int, width: int, color: Any) -> tuple[Any, Any]:
             # print(color)
             bar = np.zeros((height, width, 3), np.uint8)
@@ -51,7 +51,7 @@ def dottedfilter(img: np.ndarray, quantity: int=30000) -> None:
 
         return colors, img_bar
 
-    def modify(img: np.ndarray, times: int, colors: List[Any]) -> None:
+    def modify(img: Any, times: int, colors: List[Any]) -> None:
 
         for x in range(times):
             num = (rnt(0, img.shape[1]), rnt(0, img.shape[0]))
