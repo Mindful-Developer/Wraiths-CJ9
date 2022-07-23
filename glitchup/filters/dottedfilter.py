@@ -7,9 +7,6 @@ import numpy as np
 
 # Read the image
 # the_image = cv.imread('image.jpg')
-
-
-
 def dottedfilter(img: Any, quantity: int = 30000) -> None:
     """ Make a image looks dotted """
     def get_rgb_colors(theimg: Any, num: int) -> List[Any]:
@@ -35,11 +32,9 @@ def dottedfilter(img: Any, quantity: int = 30000) -> None:
             rgb = create_bar(row)
             rgb_values.append(rgb)
 
-
         colors = []
         for _, row in enumerate(rgb_values):
             colors.append(row)
-
         return colors
 
     def modify(img: Any, times: int, colors: List[Any]) -> None:
@@ -47,7 +42,7 @@ def dottedfilter(img: Any, quantity: int = 30000) -> None:
         for _ in range(times):
             num = (rnt(0, img.shape[1]), rnt(0, img.shape[0]))
 
-            cv.rectangle(img, num, (num[0],num[1]), (colors[rnt(0, len(colors)-1)]), cv.FILLED)
+            cv.rectangle(img, num, (num[0], num[1]), (colors[rnt(0, len(colors)-1)]), cv.FILLED)
 
         return
 
