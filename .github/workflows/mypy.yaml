@@ -25,4 +25,4 @@ jobs:
     - name: Install Dependencies
       run: pip install -r dev-requirements.txt
     - name: mypy
-      run: mypy --config-file mypy.ini $(git ls-files '*.py')
+      run: mypy --config-file mypy.ini $(git ls-files 'glitchup/*.py')
