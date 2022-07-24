@@ -42,23 +42,17 @@ class DottedFilter(ImageFilter):
         colors = self.get_rgb_colors(img, num_colors)
         for _ in range(num_dots):
             num = (rnt(0, img.shape[1]), rnt(0, img.shape[0]))
-
             cv.rectangle(img, num, (num[0], num[1]), (colors[rnt(0, len(colors)-1)]), cv.FILLED)
-
 
     def get_rgb_colors(self, theimg: Any, num: int) -> List[Any]:
         """Get colors"""
         img = theimg
         height, width, _ = np.shape(img)
-        # print(height, width)
-
         data = np.float32(np.reshape(img, (height * width, 3)))
-
         number_clusters = num
         criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 10, 1.0)
         flags = cv.KMEANS_RANDOM_CENTERS
         _, _, centers = cv.kmeans(data, number_clusters, None, criteria, 10, flags)
-        # print(centers)
 
         rgb_values = []
 
