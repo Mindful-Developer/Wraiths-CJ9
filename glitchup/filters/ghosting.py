@@ -33,8 +33,9 @@ class Ghosting(ImageFilter):
             ),
         ]
 
-    def apply(self, image: Mat, params: dict[str, Any]) -> None:
+    def apply(self, images: list[Mat], params: dict[str, Any]) -> None:
         """Apply the filter to the image."""
+        image = images[0]
         opacity = params["opacity"].default
         num_ghosts = params["number of ghosts"].default
 
@@ -59,7 +60,7 @@ if __name__ == "__main__":
     param_dict = {param.name: param for param in params}
     img = cv2.imread(r"D:\test.jpg")
     cv2.imshow("Original", img)
-    filter.apply(img, param_dict)
+    filter.apply([img], param_dict)
     cv2.imshow("Ghosting", img)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
