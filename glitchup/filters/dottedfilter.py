@@ -66,7 +66,7 @@ class DottedFilter(ImageFilter):
         return colors
 
     def create_bar(self, color: Any) -> tuple[int, int, int]:
-        "Create rgb color tuple"
+        """Create rgb color tuple"""
         red, green, blue = int(color[0]), int(color[1]), int(color[2])
         return (red, green, blue)
 

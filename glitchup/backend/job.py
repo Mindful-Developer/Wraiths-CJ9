@@ -3,7 +3,7 @@ from typing import Any
 from attr import define
 from cv2 import Mat
 
-from ..filters.image_filter import ImageFilter
+from glitchup.filters.image_filter import ImageFilter
 
 
 @define
