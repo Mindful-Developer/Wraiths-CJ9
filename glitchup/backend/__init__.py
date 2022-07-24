@@ -1,3 +1,3 @@
-from . import job, server
+from . import job, redis, server
 
-__all__ = ("job", "server")
+__all__ = ("job", "server", "redis")

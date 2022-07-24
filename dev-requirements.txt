@@ -19,3 +19,5 @@ rq~=1.10.0
 attrs~=21.4.0
 aioredis~=2.0
 hiredis~=2.0
+pytest~=7.1
+httpx~=0.23.0
