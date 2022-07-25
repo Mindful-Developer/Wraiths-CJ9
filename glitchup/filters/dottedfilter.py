@@ -4,7 +4,6 @@ from typing import Any, List
 
 import cv2 as cv
 import numpy as np
-from cv2 import Mat
 
 from glitchup.filters.image_filter import ImageFilter
 from glitchup.filters.parameter import Parameter
