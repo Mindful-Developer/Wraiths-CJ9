@@ -1,6 +1,6 @@
 from typing import Any
 
-from attr import define
+from attrs import define
 from cv2 import Mat
 
 from glitchup.filters.image_filter import ImageFilter

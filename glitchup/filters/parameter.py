@@ -4,10 +4,9 @@
 from __future__ import annotations
 
 from enum import Enum, auto
-from typing import Any, Optional, Union
+from typing import Any, Optional, TypeAlias, Union
 
-from attr import define, field
-from typing_extensions import TypeAlias
+from attrs import define, field
 
 __all__ = ("Parameter",)
 
