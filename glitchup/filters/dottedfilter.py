@@ -34,9 +34,8 @@ class DottedFilter(ImageFilter):
             )
         ]
 
-    def apply(self, img: Mat, params: dict[str, Any]) -> None:
+    def apply(self, img: List[cv.Mat], params: dict[str, Any]) -> None:
         """Apply the filter to the image."""
-        # opacity = params["opacity"].default
         num_dots = params["number of dots"].default
         num_colors = params["number of colors"].default
         colors = self.get_rgb_colors(img, num_colors)
