@@ -1,0 +1,39 @@
+.img-thumbnail {
+  background-color: #6C757D;
+  border: none;
+  padding: 1px;
+}
+
+figure {
+  position: relative;
+}
+
+.top {
+  animation-name: fade;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-duration: 2s;
+  animation-direction: alternate;
+}
+
+.bottom {
+  position: absolute;
+}
+
+@keyframes fade {
+  0% {
+    opacity: 1;
+  }
+
+  25% {
+    opacity: 1;
+  }
+
+  75% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
