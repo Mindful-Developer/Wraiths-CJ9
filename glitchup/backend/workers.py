@@ -24,7 +24,7 @@ class Worker(rq.Worker):
         super().__init__(queues, name=name, connection=conn, **kwargs)
 
     def __del__(self) -> None:
-        self.process.terminate()
+        self.process.close()
 
 
 async def spawn_worker() -> Worker:

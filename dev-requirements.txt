@@ -22,3 +22,5 @@ hiredis~=2.0
 pytest~=7.1
 httpx~=0.23.0
 numpy~=1.23.1
+hypercorn~=0.13.2
+uvloop~=0.16.0
