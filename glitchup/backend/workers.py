@@ -5,10 +5,12 @@ from typing import Any
 
 import rq
 from aioredis import Redis
+from attrs import define
 
 from .api import redis_conn, redis_queue
 
 
+@define(init=False)
 class Worker(rq.Worker):
     """A worker that runs in a separate process. Subclass of Worker provided by the Redis Queue module."""
 
