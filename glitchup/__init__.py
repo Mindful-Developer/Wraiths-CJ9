@@ -1,3 +1,3 @@
-from . import backend, filters
+from . import backend, filters, frontend
 
-__all__ = ("filters", "backend")
+__all__ = ("filters", "backend", "frontend")

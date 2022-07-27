@@ -5,8 +5,8 @@ from typing import Any
 import cv2
 from cv2 import Mat
 
-from glitchup.filters.image_filter import ImageFilter
-from glitchup.filters.parameter import Parameter
+from .image_filter import ImageFilter
+from .parameter import Parameter, ParamType
 
 
 class Ghosting(ImageFilter):
@@ -20,13 +20,13 @@ class Ghosting(ImageFilter):
         """Return the list of parameters for this filter."""
         return [
             Parameter(
-                Parameter.ParamType.FLOAT,
+                ParamType.INT,
                 "opacity",
                 default=0.25,
                 param_range=(0.0, 0.75),
             ),
             Parameter(
-                Parameter.ParamType.INT,
+                ParamType.INT,
                 "number of ghosts",
                 default=10,
                 param_range=(7, 13),
@@ -48,7 +48,7 @@ class Ghosting(ImageFilter):
             )
 
             # Remove the excess pixels
-            translated_image = translated_image[0: image.shape[0], 0: image.shape[1]]
+            translated_image = translated_image[0:image.shape[0], 0:image.shape[1]]
 
             # Blend the images together
             cv2.addWeighted(translated_image, opacity, image, 1 - opacity, 0, image)
