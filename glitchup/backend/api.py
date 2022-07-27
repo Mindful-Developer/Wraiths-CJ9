@@ -1,7 +1,7 @@
 import asyncio
 
+# import httpx
 import aioredis
-import uvloop
 from fastapi import FastAPI, WebSocket
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -35,5 +35,4 @@ async def temp_ws_endpoint(ws: WebSocket) -> None:
 
 
 if __name__ == "__main__":
-    uvloop.install()
     asyncio.run(serve(app, Config()))  # type: ignore
