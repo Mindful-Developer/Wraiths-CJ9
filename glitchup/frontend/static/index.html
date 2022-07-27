@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GlitchUp</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css"
+    />
+    <link rel="stylesheet" href="static/styles.css" />
+  </head>
+
+  <body class="bg-dark">
+    <header>
+      <div class="text-center rounded-bottom p-5 my-5">
+        <h1 class="text-success">
+          <span class="text-secondary">G̶̙͆͗́̂͒̌̐̃͝͝</span>l̶̨̡̫̰͇͙̻̤̠̂͌̊͜i̶̘̮̺̮̕t̷̨͔͋̐c̶̬̼̙͖̖̙̹̘̜̩̐̔̎͗ḧ̶̝̬̩̦̘́̾̐̔̏͌̎ͅͅ<span class="text-secondary"
+            >Ű̵̺̤̙̩̜̟̙̌̒̏̍̋̈̐͝</span
+          >p̵͇̝̿̀́͗̊̈́͒͘̕
+        </h1>
+      </div>
+    </header>
+
+    <main>
+      <form class="container d-flex flex-column flex-lg-row" action="">
+        <div
+          class="col-12 border border-success rounded-start col-lg-2 d-flex flex-column"
+        >
+          <header class="bg-success text-center py-2">
+            <h3>Filters</h3>
+          </header>
+          <section class="d-flex flex-column text-secondary text-center p-4">
+            <article class="d-flex flex-row">
+              <div class="d-flex flex-column">
+                <p class="m-0">Ghosting</p>
+                <figure>
+                  <img
+                    class="bottom img-thumbnail"
+                    src="static/images/ghosting-post.png"
+                    alt="after ghosting"
+                  />
+                  <img
+                    class="top img-thumbnail"
+                    src="static/images/ghosting-pre.jpg"
+                    alt="before ghosting"
+                  />
+                </figure>
+              </div>
+              <input
+                class="ms-3"
+                type="radio"
+                name="filter"
+                id="filter1"
+                checked
+              />
+            </article>
+            <article class="d-flex flex-row">
+              <div class="d-flex flex-column">
+                <p class="m-0">Pixel Sort</p>
+                <figure>
+                  <img
+                    class="bottom img-thumbnail"
+                    src="static/images/pixelsort-post.jpg"
+                    alt="after sorting"
+                  />
+                  <img
+                    class="top img-thumbnail"
+                    src="static/images/pixelsort-pre.jpg"
+                    alt="before sorting"
+                  />
+                </figure>
+              </div>
+              <input class="ms-3" type="radio" name="filter" id="filter2" />
+            </article>
+            <article class="d-flex flex-row">
+              <div class="d-flex flex-column">
+                <p class="m-0">Dotted</p>
+                <figure>
+                  <img
+                    class="bottom img-thumbnail"
+                    src="static/images/dottedfilter-post.png"
+                    alt="after dotting"
+                  />
+                  <img
+                    class="top img-thumbnail"
+                    src="static/images/dottedfilter-pre.png"
+                    alt="before dotting"
+                  />
+                </figure>
+              </div>
+              <input class="ms-3" type="radio" name="filter" id="filter3" />
+            </article>
+          </section>
+        </div>
+        <div class="col-12 border border-success col-lg-8 d-flex flex-column">
+          <header class="bg-success text-center py-2">
+            <h3>Parameters</h3>
+          </header>
+        </div>
+        <div
+          class="col-12 border border-success rounded-end col-lg-2 d-flex flex-column"
+        >
+          <header class="bg-success text-center py-2">
+            <h3>Images</h3>
+          </header>
+          <div
+            class="mb-5 m-4 d-flex flex-column justify-center"
+            id="fileInput1"
+          >
+            <img id="frame1" src="" class="img-thumbnail d-none border-none" />
+            <input
+              class="form-control bg-dark text-dark border-secondary "
+              type="file"
+              id="formFile"
+              onchange="preview()"
+            />
+            <button
+              onclick="clearImage()"
+              class="btn btn-danger mt-3 d-none"
+              id="load1"
+            >
+              Remove
+            </button>
+          </div>
+        </div>
+      </form>
+    </main>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa"
+          crossorigin="anonymous">
+    </script> -->
+    <script src="static/app.js"></script>
+  </body>
+</html>

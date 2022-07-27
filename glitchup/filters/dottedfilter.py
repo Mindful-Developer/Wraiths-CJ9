@@ -6,7 +6,7 @@ import cv2 as cv
 import numpy as np
 
 from glitchup.filters.image_filter import ImageFilter
-from glitchup.filters.parameter import Parameter
+from glitchup.filters.parameter import Parameter, ParamType
 
 
 class DottedFilter(ImageFilter):
@@ -20,17 +20,14 @@ class DottedFilter(ImageFilter):
         """Return the list of parameters for this filter."""
         return [
             Parameter(
-                Parameter.ParamType.INT,
+                ParamType.INT,
                 "number of dots",
                 default=40000,
-                param_range=(9000, 50000)
+                param_range=(9000, 50000),
             ),
             Parameter(
-                Parameter.ParamType.INT,
-                "number of colors",
-                default=3,
-                param_range=(1, 10)
-            )
+                ParamType.INT, "number of colors", default=3, param_range=(1, 10)
+            ),
         ]
 
     def apply(self, img: List[cv.Mat], params: dict[str, Any]) -> None:
@@ -41,7 +38,13 @@ class DottedFilter(ImageFilter):
             colors = self.get_rgb_colors(img, num_colors)
             for _ in range(num_dots):
                 num = (rnt(0, i.shape[1]), rnt(0, i.shape[0]))
-                cv.rectangle(i, num, (num[0], num[1]), (colors[rnt(0, len(colors)-1)]), cv.FILLED)
+                cv.rectangle(
+                    i,
+                    num,
+                    (num[0], num[1]),
+                    (colors[rnt(0, len(colors) - 1)]),
+                    cv.FILLED,
+                )
 
     def get_rgb_colors(self, theimg: Any, num: int) -> List[Any]:
         """Get colors"""

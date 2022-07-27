@@ -14,14 +14,14 @@ class ImageFilter(ABC):
     @abstractmethod
     def num_inputs(self) -> int:
         """Return the number of inputs this filter requires."""
-        pass
+        ...
 
     @abstractmethod
     def get_params(self) -> list[Parameter]:
         """Return the list of parameters for this filter."""
-        pass
+        ...
 
     @abstractmethod
     def apply(self, images: list[Mat], params: dict[str, Any]) -> None:
         """Apply the filter to the image."""
-        pass
+        ...
