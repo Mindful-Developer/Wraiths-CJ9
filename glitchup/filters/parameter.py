@@ -1,6 +1,3 @@
-"""Defining configuration parameter of a filter"""
-
-
 from __future__ import annotations
 
 from enum import Enum, auto

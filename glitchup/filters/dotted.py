@@ -1,24 +1,24 @@
-"""Filter for a TV white noice affect with color"""
 from random import randint as rnt
-from typing import Any, List
+from typing import Any
 
 import cv2 as cv
 import numpy as np
 
-from glitchup.filters.image_filter import ImageFilter
-from glitchup.filters.parameter import Parameter, ParamType
+from .image_filter import ImageFilter
+from .parameter import Parameter, ParamType
+
+__all__ = ("Dotted",)
 
 
-class DottedFilter(ImageFilter):
+class Dotted(ImageFilter):
     """Add random dots on the image"""
 
-    def num_inputs(self) -> int:
-        """Return the number of inputs this filter requires."""
-        return 1
+    filter_id = 981
 
-    def get_params(self) -> list[Parameter]:
-        """Return the list of parameters for this filter."""
-        return [
+    @staticmethod
+    def metadata() -> tuple[int, list[Parameter]]:
+        """Return a tuple containing the inputs and parameters of the filter."""
+        return 1, [
             Parameter(
                 ParamType.INT,
                 "number of dots",
@@ -30,12 +30,13 @@ class DottedFilter(ImageFilter):
             ),
         ]
 
-    def apply(self, img: List[cv.Mat], params: dict[str, Any]) -> None:
+    @classmethod
+    def apply(cls, img: list[cv.Mat], params: dict[str, Any]) -> None:
         """Apply the filter to the image."""
         for i in img:
             num_dots = params["number of dots"].default
             num_colors = params["number of colors"].default
-            colors = self.get_rgb_colors(img, num_colors)
+            colors = cls.get_rgb_colors(img, num_colors)
             for _ in range(num_dots):
                 num = (rnt(0, i.shape[1]), rnt(0, i.shape[0]))
                 cv.rectangle(
@@ -46,9 +47,9 @@ class DottedFilter(ImageFilter):
                     cv.FILLED,
                 )
 
-    def get_rgb_colors(self, theimg: Any, num: int) -> List[Any]:
+    @classmethod
+    def get_rgb_colors(cls, img: list[cv.Mat], num: int) -> list[Any]:
         """Get colors"""
-        img = theimg
         height, width, _ = np.shape(img)
         data = np.float32(np.reshape(img, (height * width, 3)))
         number_clusters = num
@@ -59,7 +60,7 @@ class DottedFilter(ImageFilter):
         rgb_values = []
 
         for _, row in enumerate(centers):
-            rgb = self.create_bar(row)
+            rgb = cls.create_bar(row)
             rgb_values.append(rgb)
 
         colors = []
@@ -67,15 +68,16 @@ class DottedFilter(ImageFilter):
             colors.append(row)
         return colors
 
-    def create_bar(self, color: Any) -> tuple[int, int, int]:
+    @staticmethod
+    def create_bar(color: Any) -> tuple[int, int, int]:
         """Create rgb color tuple"""
         red, green, blue = int(color[0]), int(color[1]), int(color[2])
-        return (red, green, blue)
+        return red, green, blue
 
 
 if __name__ == "__main__":
-    filter = DottedFilter()
-    params = filter.get_params()
+    filter = Dotted()
+    params = filter.metadata()[1]
     param_dict = {param.name: param for param in params}
     img = cv.imread(r"cats.jpg")
     cv.imshow("Original", img)

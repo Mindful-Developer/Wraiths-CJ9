@@ -8,17 +8,18 @@ from cv2 import Mat
 from .image_filter import ImageFilter
 from .parameter import Parameter, ParamType
 
+__all__ = ("Ghosting",)
+
 
 class Ghosting(ImageFilter):
     """Blurs the image in the positive direction on the y-axis"""
 
-    def num_inputs(self) -> int:
-        """Return the number of inputs this filter requires."""
-        return 1
+    filter_id = 982
 
-    def get_params(self) -> list[Parameter]:
-        """Return the list of parameters for this filter."""
-        return [
+    @staticmethod
+    def metadata() -> tuple[int, list[Parameter]]:
+        """Return a tuple containing the inputs and parameters of the filter."""
+        return 1, [
             Parameter(
                 ParamType.INT,
                 "opacity",
@@ -33,7 +34,8 @@ class Ghosting(ImageFilter):
             ),
         ]
 
-    def apply(self, images: list[Mat], params: dict[str, Any]) -> None:
+    @classmethod
+    def apply(cls, images: list[Mat], params: dict[str, Any]) -> None:
         """Apply the filter to the image."""
         image = images[0]
         opacity = params["opacity"].default
@@ -56,7 +58,7 @@ class Ghosting(ImageFilter):
 
 if __name__ == "__main__":
     filter = Ghosting()
-    params = filter.get_params()
+    params = filter.metadata()[1]
     param_dict = {param.name: param for param in params}
     img = cv2.imread(r"D:\test.jpg")
     cv2.imshow("Original", img)

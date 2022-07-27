@@ -31,3 +31,4 @@ build/
 .DS_Store
 
 .mypy_cache/
+*.rdb

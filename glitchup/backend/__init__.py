@@ -1,3 +1,3 @@
-from . import api, job, workers
+from . import api, job, worker
 
-__all__ = ("job", "api", "workers")
+__all__ = ("job", "api", "worker")
