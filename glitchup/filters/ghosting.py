@@ -1,5 +1,4 @@
-"""Filter for a ghosting effect"""
-
+import json
 from typing import Any
 
 import cv2
@@ -35,6 +34,15 @@ class Ghosting(ImageFilter):
         ]
 
     @classmethod
+    def to_json(cls) -> str:
+        """Return a JSON representation of the filter."""
+        param_dict: dict[str, Parameter | int] = {
+            param.name: param for param in cls.metadata()[1]
+        }
+        param_dict["inputs"] = cls.metadata()[0]
+        return json.dumps(param_dict)
+
+    @classmethod
     def apply(cls, images: list[Mat], params: dict[str, Any]) -> None:
         """Apply the filter to the image."""
         image = images[0]
@@ -57,12 +65,11 @@ class Ghosting(ImageFilter):
 
 
 if __name__ == "__main__":
-    filter = Ghosting()
-    params = filter.metadata()[1]
-    param_dict = {param.name: param for param in params}
+    param_list = Ghosting.metadata()[1]
+    param_dict = {param.name: param for param in param_list}
     img = cv2.imread(r"D:\test.jpg")
     cv2.imshow("Original", img)
-    filter.apply([img], param_dict)
+    Ghosting.apply([img], param_dict)
     cv2.imshow("Ghosting", img)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
