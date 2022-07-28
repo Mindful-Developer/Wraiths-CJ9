@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
+from json import dumps
 from typing import Any
 
 from cv2 import Mat
-from json import dumps
 
 from .parameter import Parameter
 
@@ -27,7 +27,7 @@ class ImageFilter(ABC):
     @classmethod
     def to_json(cls) -> str:
         """Return the data for this filter."""
-        param_dict = {param.name: param for param in cls.get_params()}
+        param_dict: dict[str, Parameter | int] = {param.name: param for param in cls.get_params()}
         param_dict["inputs"] = cls.num_inputs()
         return dumps(param_dict)
 

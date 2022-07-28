@@ -15,6 +15,8 @@ PARAM_RANGE: TypeAlias = Optional[tuple[Union[int, float], Union[int, float]]]
 
 
 class ParamType(Enum):
+    """Enum for parameter types."""
+
     INT = auto()
     FLOAT = auto()
 

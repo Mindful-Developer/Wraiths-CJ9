@@ -2,8 +2,8 @@
 
 # import pytest
 import cv2
-from glitchup.filters import dottedfilter, ghosting
 
+from glitchup.filters import dottedfilter, ghosting
 
 if __name__ == "__main__":
     filter_list = [dottedfilter.DottedFilter, ghosting.Ghosting]
