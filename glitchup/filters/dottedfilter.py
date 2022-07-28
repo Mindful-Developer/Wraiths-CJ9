@@ -4,6 +4,7 @@ from typing import Any, List
 
 import cv2 as cv
 import numpy as np
+from numpy.typing import NDArray
 
 from glitchup.filters.image_filter import ImageFilter
 from glitchup.filters.parameter import Parameter, ParamType
@@ -12,11 +13,13 @@ from glitchup.filters.parameter import Parameter, ParamType
 class DottedFilter(ImageFilter):
     """Add random dots on the image"""
 
-    def num_inputs(self) -> int:
+    @staticmethod
+    def num_inputs() -> int:
         """Return the number of inputs this filter requires."""
         return 1
 
-    def get_params(self) -> list[Parameter]:
+    @staticmethod
+    def get_params() -> list[Parameter]:
         """Return the list of parameters for this filter."""
         return [
             Parameter(
@@ -26,60 +29,49 @@ class DottedFilter(ImageFilter):
                 param_range=(9000, 50000),
             ),
             Parameter(
-                ParamType.INT, "number of colors", default=3, param_range=(1, 10)
+                ParamType.INT,
+                "number of colors",
+                default=3,
+                param_range=(1, 10)
             ),
         ]
 
-    def apply(self, img: List[cv.Mat], params: dict[str, Any]) -> None:
+    @classmethod
+    def apply(cls, images: List[cv.Mat], params: dict[str, Any]) -> None:
         """Apply the filter to the image."""
-        for i in img:
-            num_dots = params["number of dots"].default
-            num_colors = params["number of colors"].default
-            colors = self.get_rgb_colors(img, num_colors)
-            for _ in range(num_dots):
-                num = (rnt(0, i.shape[1]), rnt(0, i.shape[0]))
-                cv.rectangle(
-                    i,
-                    num,
-                    (num[0], num[1]),
-                    (colors[rnt(0, len(colors) - 1)]),
-                    cv.FILLED,
-                )
+        img = images[0]
+        num_dots = params["number of dots"].default
+        num_colors = params["number of colors"].default
+        colors = cls.get_rgb_colors(img, num_colors)
 
-    def get_rgb_colors(self, theimg: Any, num: int) -> List[Any]:
+        for _ in range(num_dots):
+            num = (rnt(0, img.shape[1]), rnt(0, img.shape[0]))
+            cv.rectangle(
+                img, num, (num[0], num[1]), (colors[rnt(0, len(colors) - 1)]), cv.FILLED,
+            )
+
+    @classmethod
+    def get_rgb_colors(cls, img: cv.Mat, num: int) -> List[tuple[int, int, int]]:
         """Get colors"""
-        img = theimg
         height, width, _ = np.shape(img)
         data = np.float32(np.reshape(img, (height * width, 3)))
-        number_clusters = num
         criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 10, 1.0)
         flags = cv.KMEANS_RANDOM_CENTERS
-        _, _, centers = cv.kmeans(data, number_clusters, None, criteria, 10, flags)
+        _, _, centers = cv.kmeans(data, num, None, criteria, 10, flags)
+        return [cls.create_bar(row) for row in centers]
 
-        rgb_values = []
-
-        for _, row in enumerate(centers):
-            rgb = self.create_bar(row)
-            rgb_values.append(rgb)
-
-        colors = []
-        for _, row in enumerate(rgb_values):
-            colors.append(row)
-        return colors
-
-    def create_bar(self, color: Any) -> tuple[int, int, int]:
+    @staticmethod
+    def create_bar(color: NDArray[np.float32]) -> tuple[int, int, int]:
         """Create rgb color tuple"""
-        red, green, blue = int(color[0]), int(color[1]), int(color[2])
-        return (red, green, blue)
+        return int(color[0]), int(color[1]), int(color[2])
 
 
 if __name__ == "__main__":
-    filter = DottedFilter()
-    params = filter.get_params()
-    param_dict = {param.name: param for param in params}
-    img = cv.imread(r"cats.jpg")
+    param_list = DottedFilter.get_params()
+    param_dict = {param.name: param for param in param_list}
+    img = cv.imread(r"D:\test.jpg")
     cv.imshow("Original", img)
-    filter.apply(img, param_dict)
+    DottedFilter.apply([img], param_dict)
     cv.imshow("Dotted", img)
     cv.waitKey(0)
     cv.destroyAllWindows()
