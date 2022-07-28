@@ -27,7 +27,7 @@ class DottedFilter(ImageFilter):
             ),
             Parameter(
                 ParamType.INT, "number of colors", default=3, param_range=(1, 10)
-            ),
+            )
         ]
 
     def apply(self, img: List[cv.Mat], params: dict[str, Any]) -> None:
