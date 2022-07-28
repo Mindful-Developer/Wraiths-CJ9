@@ -10,7 +10,7 @@ from glitchup.filters.parameter import Parameter
 
 
 class NumberFilter(ImageFilter):
-    """Add random dots on the image"""
+    """Turn image to zero and ones"""
 
     def num_inputs(self) -> int:
         """Return the number of inputs this filter requires."""
