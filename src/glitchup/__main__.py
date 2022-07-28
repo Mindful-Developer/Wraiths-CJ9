@@ -23,7 +23,7 @@ app.mount("/static", StaticFiles(directory=Path(BASE_DIR, "web/static")), name="
 
 @app.on_event("startup")
 async def setup() -> None:
-    """Setup necessities for the API, like Redis (database) connection and Redis queue."""
+    """Configure and set a few things on app startup."""
     await redis_conn.hset(
         "filters",
         mapping={
