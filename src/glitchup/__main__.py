@@ -24,35 +24,11 @@ app.mount("/static", StaticFiles(directory=Path(BASE_DIR, "web/static")), name="
 @app.on_event("startup")
 async def setup() -> None:
     """Configure and set a few things on app startup."""
-    await redis_conn.rpush(
+    await redis_conn.sadd(
         "filters",
-        str(
-            {
-                "id": Ghosting.filter_id,
-                "name": "Ghosting",
-                "description": Ghosting.__doc__,
-                "inputs": Ghosting.metadata()[0],
-                "parameters": ", ".join(repr(p) for p in Ghosting.metadata()[1]),
-            }
-        ),
-        str(
-            {
-                "id": Dotted.filter_id,
-                "name": "Dotted",
-                "description": Dotted.__doc__,
-                "inputs": Dotted.metadata()[0],
-                "parameters": ", ".join(repr(p) for p in Dotted.metadata()[1]),
-            }
-        ),
-        str(
-            {
-                "id": Number.filter_id,
-                "name": "Number",
-                "description": Number.__doc__,
-                "inputs": Number.metadata()[0],
-                "parameters": ", ".join(repr(p) for p in Number.metadata()[1]),
-            }
-        ),
+        str(Ghosting.to_dict()),
+        str(Dotted.to_dict()),
+        str(Number.to_dict()),
     )
 
 
@@ -82,6 +58,12 @@ class FilterMetadata(BaseModel):
         arbitrary_types_allowed = True
 
 
+@app.get("/filters")
+async def get_all_filters() -> list[FilterMetadata]:
+    """Return all filters."""
+    ...
+
+
 @app.get("/filters/filter/{filter_id}")
 async def get_filter(filter_id: int) -> Type[ImageFilter]:
     """Get a filter by ID."""
@@ -95,17 +77,9 @@ async def create_filter(filter_metadata: FilterMetadata) -> Type[ImageFilter]:
     filter_cls.__doc__ = filter_metadata.description
     setattr(filter_cls, "filter_id", filter_metadata.filter_id)
 
-    await redis_conn.rpush(
+    await redis_conn.sadd(
         "filters",
-        str(
-            {
-                "id": filter_metadata.filter_id,
-                "name": filter_metadata.name,
-                "description": filter_metadata.description,
-                "inputs": filter_metadata.inputs,
-                "parameters": filter_metadata.parameters,
-            }
-        ),
+        str(filter_cls.to_dict()),  # type: ignore
     )
 
     return filter_cls
