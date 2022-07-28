@@ -14,13 +14,14 @@ __all__ = ("Parameter",)
 PARAM_RANGE: TypeAlias = Optional[tuple[Union[int, float], Union[int, float]]]
 
 
+class ParamType(Enum):
+    INT = auto()
+    FLOAT = auto()
+
+
 @define
 class Parameter:
     """Configurable parameter of a filter"""
-
-    class ParamType(Enum):
-        INT = auto()
-        FLOAT = auto()
 
     _param_type: ParamType
     _name: str
@@ -60,5 +61,8 @@ class Parameter:
     def from_dict(d: dict[str, Any]) -> Parameter:
         """Create a parameter from a dictionary"""
         return Parameter(
-            Parameter.ParamType[d["type"]], d["name"], d["default"], d["range"]
+            d["type"],
+            d["name"],
+            d["default"],
+            d["range"],
         )
