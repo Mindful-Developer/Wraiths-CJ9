@@ -20,8 +20,8 @@ class ImageFilter(ABC):
             if not hasattr(cls, attr):
                 raise AttributeError(f"{cls.__name__} must define {attr}")
 
-    @abstractmethod
     @staticmethod
+    @abstractmethod
     def metadata() -> tuple[int, list[Parameter]]:
         """Return a tuple containing the inputs and parameters of the filter."""
         ...
@@ -32,8 +32,8 @@ class ImageFilter(ABC):
         param_dict = {param.name: param for param in cls.metadata()[1]}
         return json.dumps({"inputs": cls.metadata()[0], "parameters": param_dict})
 
-    @abstractmethod
     @classmethod
+    @abstractmethod
     def apply(cls, images: list[Mat], params: dict[str, Any]) -> None:
         """Apply the filter to the image."""
         ...

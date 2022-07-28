@@ -1,33 +1,29 @@
-# import httpx
 import asyncio
+from pathlib import Path
 from typing import Type
 
-import aioredis
+# import httpx
 from fastapi import FastAPI, WebSocket
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from hypercorn.asyncio import serve
 from hypercorn.config import Config
 from pydantic import BaseModel
-from rq import Queue
-
-from ..filters.dotted import Dotted
-from ..filters.ghosting import Ghosting
-from ..filters.image_filter import ImageFilter
-from ..filters.parameter import Parameter
+from web.filters.dotted import Dotted  # type: ignore
+from web.filters.ghosting import Ghosting  # type: ignore
+from web.filters.image_filter import ImageFilter  # type: ignore
+from web.filters.number import Number  # type: ignore
+from web.filters.parameter import Parameter  # type: ignore
+from web.worker import redis_conn, redis_queue  # type: ignore
 
 app = FastAPI()
-app.mount("/static", StaticFiles(directory="../frontend/static"), name="static")
-redis_conn, redis_queue = None, None
+BASE_DIR = Path(__file__).resolve().parent
+app.mount("/static", StaticFiles(directory=Path(BASE_DIR, "web/static")), name="static")
 
 
 @app.on_event("startup")
 async def setup() -> None:
     """Setup necessities for the API, like Redis (database) connection and Redis queue."""
-    global redis_queue, redis_conn
-    redis_conn = aioredis.from_url("redis://redis:6379")
-    redis_queue = Queue(connection=redis_conn)
-
     await redis_conn.hset(
         "filters",
         mapping={
@@ -35,7 +31,7 @@ async def setup() -> None:
             "name": "Ghosting",
             "description": Ghosting.__doc__,
             "inputs": Ghosting.metadata()[0],
-            "parameters": Ghosting.metadata()[1],
+            "parameters": ", ".join(repr(p) for p in Ghosting.metadata()[1]),
         },
     )
     await redis_conn.hset(
@@ -45,7 +41,17 @@ async def setup() -> None:
             "name": "Dotted",
             "description": Dotted.__doc__,
             "inputs": Dotted.metadata()[0],
-            "parameters": Dotted.metadata()[1],
+            "parameters": ", ".join(repr(p) for p in Dotted.metadata()[1]),
+        },
+    )
+    await redis_conn.hset(
+        "filters",
+        mapping={
+            "id": Number.filter_id,
+            "name": "Number",
+            "description": Number.__doc__,
+            "inputs": Number.metadata()[0],
+            "parameters": ", ".join(repr(p) for p in Number.metadata()[1]),
         },
     )
 
@@ -53,17 +59,14 @@ async def setup() -> None:
 @app.on_event("shutdown")
 async def shutdown() -> None:
     """Shutdown the web server and connections to database."""
-    global redis_conn, redis_queue
-
-    if redis_conn is not None and redis_queue is not None:
-        redis_queue.delete()
-        await redis_conn.close()
+    redis_queue.delete()
+    await redis_conn.close()
 
 
 @app.get("/")
 async def root() -> FileResponse:
     """Return the root page."""
-    return FileResponse("../frontend/static/index.html")
+    return FileResponse(f"{BASE_DIR}/web/static/index.html")
 
 
 class FilterMetadata(BaseModel):
@@ -74,6 +77,9 @@ class FilterMetadata(BaseModel):
     description: str
     inputs: int
     parameters: list[Parameter]
+
+    class Config:
+        arbitrary_types_allowed = True
 
 
 @app.get("/filters/filter/{filter_id}")
@@ -89,17 +95,16 @@ async def create_filter(filter_metadata: FilterMetadata) -> Type[ImageFilter]:
     filter_cls.__doc__ = filter_metadata.description
     setattr(filter_cls, "filter_id", filter_metadata.filter_id)
 
-    if redis_conn is not None:
-        await redis_conn.hset(
-            "filters",
-            mapping={
-                "id": filter_metadata.filter_id,
-                "name": filter_metadata.name,
-                "description": filter_metadata.description,
-                "inputs": filter_metadata.inputs,
-                "parameters": filter_metadata.parameters,
-            },
-        )
+    await redis_conn.hset(
+        "filters",
+        mapping={
+            "id": filter_metadata.filter_id,
+            "name": filter_metadata.name,
+            "description": filter_metadata.description,
+            "inputs": filter_metadata.inputs,
+            "parameters": filter_metadata.parameters,
+        },
+    )
 
     return filter_cls
 

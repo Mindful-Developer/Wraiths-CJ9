@@ -3,11 +3,12 @@ import random
 from multiprocessing import Process
 from typing import Any
 
+import aioredis
 import rq
-from aioredis import Redis
 from attrs import define
 
-from .api import redis_conn, redis_queue
+redis_conn = aioredis.from_url("redis://localhost:6379")
+redis_queue = rq.Queue(connection=redis_conn)
 
 
 @define(init=False)
@@ -19,7 +20,7 @@ class Worker(rq.Worker):
         queues: list[rq.Queue],
         name: str,
         process: Process,
-        conn: Redis = None,
+        conn: aioredis.Redis = None,
         **kwargs: Any,
     ) -> None:
         self.process = process

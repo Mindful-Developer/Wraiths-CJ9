@@ -4,8 +4,8 @@ from typing import Any
 import cv2 as cv
 import numpy as np
 
-from glitchup.filters.image_filter import ImageFilter
-from glitchup.filters.parameter import Parameter
+from .image_filter import ImageFilter
+from .parameter import Parameter
 
 
 class Number(ImageFilter):
