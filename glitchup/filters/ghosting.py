@@ -1,4 +1,3 @@
-import json
 from typing import Any
 
 import cv2
@@ -34,15 +33,6 @@ class Ghosting(ImageFilter):
         ]
 
     @classmethod
-    def to_json(cls) -> str:
-        """Return a JSON representation of the filter."""
-        param_dict: dict[str, Parameter | int] = {
-            param.name: param for param in cls.metadata()[1]
-        }
-        param_dict["inputs"] = cls.metadata()[0]
-        return json.dumps(param_dict)
-
-    @classmethod
     def apply(cls, images: list[Mat], params: dict[str, Any]) -> None:
         """Apply the filter to the image."""
         image = images[0]
@@ -51,16 +41,10 @@ class Ghosting(ImageFilter):
 
         for i in range(num_ghosts):
             y = i * i
-
-            # Create a copy of the image and translate it down
             translated_image = cv2.copyMakeBorder(
                 image, y, y + 1, 0, 0, cv2.BORDER_CONSTANT, value=(0, 0, 0)
             )
-
-            # Remove the excess pixels
             translated_image = translated_image[0:image.shape[0], 0:image.shape[1]]
-
-            # Blend the images together
             cv2.addWeighted(translated_image, opacity, image, 1 - opacity, 0, image)
 
 

@@ -5,13 +5,15 @@ from typing import Any, Optional, TypeAlias, Union
 
 from attrs import define, field
 
-__all__ = ("Parameter",)
+__all__ = ("Parameter", "ParamType")
 
 # tuple[int | float, int | float] | None (mypy doesn't like this; the type below hopefully is temporary)
 PARAM_RANGE: TypeAlias = Optional[tuple[Union[int, float], Union[int, float]]]
 
 
 class ParamType(Enum):
+    """Enum for the types of parameters."""
+
     INT = auto()
     FLOAT = auto()
 

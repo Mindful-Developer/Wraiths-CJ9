@@ -1,4 +1,3 @@
-import json
 from random import randint as rnt
 from typing import Any
 
@@ -31,15 +30,6 @@ class Dotted(ImageFilter):
                 ParamType.INT, "number of colors", default=3, param_range=(1, 10)
             ),
         ]
-
-    @classmethod
-    def to_json(cls) -> str:
-        """Return a JSON representation of the filter."""
-        param_dict: dict[str, Parameter | int] = {
-            param.name: param for param in cls.metadata()[1]
-        }
-        param_dict["inputs"] = cls.metadata()[0]
-        return json.dumps(param_dict)
 
     @classmethod
     def apply(cls, images: list[cv.Mat], params: dict[str, Any]) -> None:
