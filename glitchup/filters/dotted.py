@@ -12,7 +12,7 @@ __all__ = ("Dotted",)
 
 
 class Dotted(ImageFilter):
-    """Add random dots on the image"""
+    """Add random dots on the image."""
 
     filter_id = 981
 
