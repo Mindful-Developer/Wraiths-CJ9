@@ -9,7 +9,7 @@ from .parameter import Parameter
 
 
 class Number(ImageFilter):
-    """Filter image to a zero and one image with blurred background."""
+    """Turn image to zero and ones"""
 
     filter_id = 983
 
