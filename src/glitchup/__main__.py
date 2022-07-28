@@ -24,35 +24,35 @@ app.mount("/static", StaticFiles(directory=Path(BASE_DIR, "web/static")), name="
 @app.on_event("startup")
 async def setup() -> None:
     """Configure and set a few things on app startup."""
-    await redis_conn.hset(
+    await redis_conn.rpush(
         "filters",
-        mapping={
-            "id": Ghosting.filter_id,
-            "name": "Ghosting",
-            "description": Ghosting.__doc__,
-            "inputs": Ghosting.metadata()[0],
-            "parameters": ", ".join(repr(p) for p in Ghosting.metadata()[1]),
-        },
-    )
-    await redis_conn.hset(
-        "filters",
-        mapping={
-            "id": Dotted.filter_id,
-            "name": "Dotted",
-            "description": Dotted.__doc__,
-            "inputs": Dotted.metadata()[0],
-            "parameters": ", ".join(repr(p) for p in Dotted.metadata()[1]),
-        },
-    )
-    await redis_conn.hset(
-        "filters",
-        mapping={
-            "id": Number.filter_id,
-            "name": "Number",
-            "description": Number.__doc__,
-            "inputs": Number.metadata()[0],
-            "parameters": ", ".join(repr(p) for p in Number.metadata()[1]),
-        },
+        str(
+            {
+                "id": Ghosting.filter_id,
+                "name": "Ghosting",
+                "description": Ghosting.__doc__,
+                "inputs": Ghosting.metadata()[0],
+                "parameters": ", ".join(repr(p) for p in Ghosting.metadata()[1]),
+            }
+        ),
+        str(
+            {
+                "id": Dotted.filter_id,
+                "name": "Dotted",
+                "description": Dotted.__doc__,
+                "inputs": Dotted.metadata()[0],
+                "parameters": ", ".join(repr(p) for p in Dotted.metadata()[1]),
+            }
+        ),
+        str(
+            {
+                "id": Number.filter_id,
+                "name": "Number",
+                "description": Number.__doc__,
+                "inputs": Number.metadata()[0],
+                "parameters": ", ".join(repr(p) for p in Number.metadata()[1]),
+            }
+        ),
     )
 
 
@@ -95,15 +95,17 @@ async def create_filter(filter_metadata: FilterMetadata) -> Type[ImageFilter]:
     filter_cls.__doc__ = filter_metadata.description
     setattr(filter_cls, "filter_id", filter_metadata.filter_id)
 
-    await redis_conn.hset(
+    await redis_conn.rpush(
         "filters",
-        mapping={
-            "id": filter_metadata.filter_id,
-            "name": filter_metadata.name,
-            "description": filter_metadata.description,
-            "inputs": filter_metadata.inputs,
-            "parameters": filter_metadata.parameters,
-        },
+        str(
+            {
+                "id": filter_metadata.filter_id,
+                "name": filter_metadata.name,
+                "description": filter_metadata.description,
+                "inputs": filter_metadata.inputs,
+                "parameters": filter_metadata.parameters,
+            }
+        ),
     )
 
     return filter_cls
