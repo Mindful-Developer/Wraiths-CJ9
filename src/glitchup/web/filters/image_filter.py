@@ -27,10 +27,10 @@ class ImageFilter(ABC):
         ...
 
     @classmethod
-    def to_json(cls) -> str:
+    def to_json(cls) -> dict[str, Any]:
         """Return a JSON representation of the filter."""
         param_dict = {param.name: param for param in cls.metadata()[1]}
-        return json.dumps({"inputs": cls.metadata()[0], "parameters": param_dict})
+        return {"inputs": cls.metadata()[0], "parameters": param_dict}
 
     @classmethod
     @abstractmethod

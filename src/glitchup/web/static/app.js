@@ -20,3 +20,27 @@ function clearImage() {
   frame1.src = "";
   flipDisplay(fileIn);
 }
+
+async function getFilter(filterID) {
+  const filter = await fetch('/filters/' + filterID);
+  const filterData = await filter.json();
+  return filterData;
+}
+
+async function populate(filterID) {
+  const filterJSON = await getFilter(filterID);
+  const fileInputs = document.getElementById("fileInputs");
+  const parameters = document.getElementById("parameters");
+  fileInputs.innerHTML = `$(filterJSON.inputs)`;
+  parameters.innerHTML = `$(filterJSON.parameters)`;
+}
+
+const inputs = document.getElementsByClassName("input");
+for (let input of inputs) {
+    input.addEventListener("change", function() {
+        const filterID = input.id;
+        populate(filterID).then(() => {
+            console.log("populated");
+        });
+    });
+}

@@ -1,24 +1,32 @@
 import asyncio
 from pathlib import Path
 from typing import Type
+from ast import literal_eval
 
 # import httpx
 from fastapi import FastAPI, WebSocket
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from hypercorn.asyncio import serve
 from hypercorn.config import Config
 from pydantic import BaseModel
-from web.filters.dotted import Dotted  # type: ignore
+from web.filters.dotted import Dotted # type: ignore
 from web.filters.ghosting import Ghosting  # type: ignore
 from web.filters.image_filter import ImageFilter  # type: ignore
 from web.filters.number import Number  # type: ignore
+from web.filters.metaldot import MetalDot  # type: ignore
 from web.filters.parameter import Parameter  # type: ignore
 from web.worker import redis_conn, redis_queue  # type: ignore
 
 app = FastAPI()
 BASE_DIR = Path(__file__).resolve().parent
 app.mount("/static", StaticFiles(directory=Path(BASE_DIR, "web/static")), name="static")
+FILTERS = {
+    "981": Dotted,
+    "982": Ghosting,
+    "983": Number,
+    "984": MetalDot,
+}
 
 
 @app.on_event("startup")
@@ -53,6 +61,15 @@ async def setup() -> None:
                 "parameters": ", ".join(repr(p) for p in Number.metadata()[1]),
             }
         ),
+        str(
+            {
+                "id": MetalDot.filter_id,
+                "name": "MetalDot",
+                "description": MetalDot.__doc__,
+                "inputs": MetalDot.metadata()[0],
+                "parameters": ", ".join(repr(p) for p in MetalDot.metadata()[1]),
+            }
+        ),
     )
 
 
@@ -82,10 +99,20 @@ class FilterMetadata(BaseModel):
         arbitrary_types_allowed = True
 
 
-@app.get("/filters/filter/{filter_id}")
-async def get_filter(filter_id: int) -> Type[ImageFilter]:
+@app.get("/filters/{filter_id}")
+async def get_filter(filter_id: str) -> JSONResponse:
     """Get a filter by ID."""
-    ...
+    if filter_id not in FILTERS:
+        return JSONResponse(
+            status_code=404,
+            content={"message": f"Filter {filter_id} not found."},
+        )
+    filter_class = FILTERS[filter_id]
+    return JSONResponse(
+        status_code=200,
+        content=filter_class.to_json(),
+        )
+
 
 
 @app.post("/filters/create/")
