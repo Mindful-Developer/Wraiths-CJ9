@@ -42,9 +42,9 @@ class ImageFilter(ABC):
     def to_dict(cls) -> dict[str, Any]:
         """Return a dictionary representation of the filter."""
         return {
-            "id": cls.filter_id,  # type: ignore
+            "filter_id": cls.filter_id,  # type: ignore
             "name": cls.__name__,
             "description": cls.__doc__,
             "inputs": cls.metadata()[0],
-            "parameters": ", ".join(repr(p) for p in cls.metadata()[1]),
+            "parameters": [p.to_dict() for p in cls.metadata()[1]],
         }

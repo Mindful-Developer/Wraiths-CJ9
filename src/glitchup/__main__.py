@@ -1,10 +1,11 @@
 import asyncio
+import subprocess
 from pathlib import Path
-from typing import Type
+from typing import Any, Type
 
 # import httpx
 from fastapi import FastAPI, WebSocket
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from hypercorn.asyncio import serve
 from hypercorn.config import Config
@@ -14,7 +15,6 @@ from web.filters.builtin.ghosting import Ghosting  # type: ignore
 from web.filters.builtin.metaldot import MetalDot  # type: ignore
 from web.filters.builtin.number import Number  # type: ignore
 from web.filters.image_filter import ImageFilter  # type: ignore
-from web.filters.parameter import Parameter  # type: ignore
 from web.worker import redis_conn, redis_queue  # type: ignore
 
 app = FastAPI()
@@ -54,16 +54,24 @@ class FilterMetadata(BaseModel):
     name: str
     description: str
     inputs: int
-    parameters: list[Parameter]
-
-    class Config:
-        arbitrary_types_allowed = True
+    # the dict stored here is the result of calling `.to_dict()` on the parameter
+    parameters: list[dict[str, Any]]
 
 
 @app.get("/filters")
-async def get_all_filters() -> list[FilterMetadata]:
+async def get_all_filters() -> JSONResponse:
     """Return all filters."""
-    ...
+    filters = await redis_conn.smembers("filters")
+
+    return JSONResponse(
+        content={
+            "filters": [
+                dict(FilterMetadata.parse_raw(f.translate(f.maketrans(b"'()", b'"[]'))))
+                for f in filters
+            ]
+        },
+        status_code=200,
+    )
 
 
 @app.get("/filters/filter/{filter_id}")
@@ -93,4 +101,5 @@ async def apply_filter(filter_id: int, ws: WebSocket) -> None:
     ...
 
 
+subprocess.run(["redis-server", "--daemonize", "yes"])
 asyncio.run(serve(app, Config()))  # type: ignore
