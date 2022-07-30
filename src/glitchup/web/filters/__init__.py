@@ -1,3 +1,3 @@
-from . import dotted, ghosting, image_filter, number, parameter
+from . import builtin, image_filter, parameter
 
-__all__ = ("image_filter", "parameter", "ghosting", "dotted", "number")
+__all__ = ("image_filter", "parameter", "builtin")

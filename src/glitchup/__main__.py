@@ -9,10 +9,11 @@ from fastapi.staticfiles import StaticFiles
 from hypercorn.asyncio import serve
 from hypercorn.config import Config
 from pydantic import BaseModel
-from web.filters.dotted import Dotted  # type: ignore
-from web.filters.ghosting import Ghosting  # type: ignore
+from web.filters.builtin.dotted import Dotted  # type: ignore
+from web.filters.builtin.ghosting import Ghosting  # type: ignore
+from web.filters.builtin.metaldot import MetalDot  # type: ignore
+from web.filters.builtin.number import Number  # type: ignore
 from web.filters.image_filter import ImageFilter  # type: ignore
-from web.filters.number import Number  # type: ignore
 from web.filters.parameter import Parameter  # type: ignore
 from web.worker import redis_conn, redis_queue  # type: ignore
 
@@ -29,6 +30,7 @@ async def setup() -> None:
         str(Ghosting.to_dict()),
         str(Dotted.to_dict()),
         str(Number.to_dict()),
+        str(MetalDot.to_dict()),
     )
 
 
@@ -91,5 +93,4 @@ async def apply_filter(filter_id: int, ws: WebSocket) -> None:
     ...
 
 
-if __name__ == "__main__":
-    asyncio.run(serve(app, Config()))  # type: ignore
+asyncio.run(serve(app, Config()))  # type: ignore

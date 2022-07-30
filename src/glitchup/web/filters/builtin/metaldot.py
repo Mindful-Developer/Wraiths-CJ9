@@ -1,12 +1,11 @@
-"""Filter image to a zero and one image with blurred background"""
 from random import randint as rnt
 from typing import Any
 
 import cv2 as cv
 import numpy as np
 
-from .image_filter import ImageFilter
-from .parameter import Parameter, ParamType
+from ..image_filter import ImageFilter
+from ..parameter import Parameter, ParamType
 
 
 class MetalDot(ImageFilter):

@@ -1,3 +1,3 @@
-from . import web
+from . import tests, web
 
-__all__ = ("web",)
+__all__ = ("web", "tests")
