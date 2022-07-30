@@ -33,4 +33,3 @@ A Python based glitch art generator with visualization.
 - [Grace Zhang](https://github.com/Today100)
 - [Alec Hitchiner](https://github.com/supereater14)
 - [Christopher James](https://github.com/gamingbuddhist)
-
