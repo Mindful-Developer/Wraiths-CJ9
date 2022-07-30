@@ -1,6 +1,6 @@
 """Filter image to a zero and one image with blurred background"""
 from random import randint as rnt
-from typing import Any, List
+from typing import Any
 
 import cv2 as cv
 import numpy as np
@@ -25,7 +25,7 @@ class MetalDot(ImageFilter):
     @classmethod
     def apply(cls, images: list[cv.Mat], params: dict[str, Any]) -> None:
         """Apply the filter to the image."""
-        img = images[0].copy()
+        img = images[0]
         range_number = params["range number"].default
         for x in range(0, img.shape[0], 6):
             for y in range(0, img.shape[1], 4):
@@ -40,12 +40,12 @@ class MetalDot(ImageFilter):
                     color=c,
                     thickness=0,
                 )
-        im2 = cv.Laplacian(img, cv.CV_32F)
-        im2 = np.uint8(np.absolute(im2))
-        cv.addWeighted(img, 0, im2, 1, 0, images[0])
+        altered_img: cv.Mat = np.uint8(np.absolute(cv.Laplacian(img, cv.CV_32F)))
+        for row in range(img.shape[0]):
+            img[row] = altered_img[row]
 
     @staticmethod
-    def get_color(params: dict[str, Any], xc: int, yc: int) -> List[int]:
+    def get_color(params: dict[str, Any], xc: int, yc: int) -> list[int]:
         """Get color from parameter"""
         pattern = (
             "x x x",
