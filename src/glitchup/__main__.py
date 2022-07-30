@@ -1,7 +1,8 @@
 import asyncio
+import subprocess
 from pathlib import Path
-from typing import Type
-from ast import literal_eval
+
+from typing import Any, Type
 
 # import httpx
 from fastapi import FastAPI, WebSocket
@@ -10,12 +11,12 @@ from fastapi.staticfiles import StaticFiles
 from hypercorn.asyncio import serve
 from hypercorn.config import Config
 from pydantic import BaseModel
-from web.filters.dotted import Dotted # type: ignore
-from web.filters.ghosting import Ghosting  # type: ignore
+
+from web.filters.builtin.dotted import Dotted  # type: ignore
+from web.filters.builtin.ghosting import Ghosting  # type: ignore
+from web.filters.builtin.metaldot import MetalDot  # type: ignore
+from web.filters.builtin.number import Number  # type: ignore
 from web.filters.image_filter import ImageFilter  # type: ignore
-from web.filters.number import Number  # type: ignore
-from web.filters.metaldot import MetalDot  # type: ignore
-from web.filters.parameter import Parameter  # type: ignore
 from web.worker import redis_conn, redis_queue  # type: ignore
 
 app = FastAPI()
@@ -32,44 +33,12 @@ FILTERS = {
 @app.on_event("startup")
 async def setup() -> None:
     """Configure and set a few things on app startup."""
-    await redis_conn.rpush(
+    await redis_conn.sadd(
         "filters",
-        str(
-            {
-                "id": Ghosting.filter_id,
-                "name": "Ghosting",
-                "description": Ghosting.__doc__,
-                "inputs": Ghosting.metadata()[0],
-                "parameters": ", ".join(repr(p) for p in Ghosting.metadata()[1]),
-            }
-        ),
-        str(
-            {
-                "id": Dotted.filter_id,
-                "name": "Dotted",
-                "description": Dotted.__doc__,
-                "inputs": Dotted.metadata()[0],
-                "parameters": ", ".join(repr(p) for p in Dotted.metadata()[1]),
-            }
-        ),
-        str(
-            {
-                "id": Number.filter_id,
-                "name": "Number",
-                "description": Number.__doc__,
-                "inputs": Number.metadata()[0],
-                "parameters": ", ".join(repr(p) for p in Number.metadata()[1]),
-            }
-        ),
-        str(
-            {
-                "id": MetalDot.filter_id,
-                "name": "MetalDot",
-                "description": MetalDot.__doc__,
-                "inputs": MetalDot.metadata()[0],
-                "parameters": ", ".join(repr(p) for p in MetalDot.metadata()[1]),
-            }
-        ),
+        str(Ghosting.to_dict()),
+        str(Dotted.to_dict()),
+        str(Number.to_dict()),
+        str(MetalDot.to_dict()),
     )
 
 
@@ -93,10 +62,24 @@ class FilterMetadata(BaseModel):
     name: str
     description: str
     inputs: int
-    parameters: list[Parameter]
+    # the dict stored here is the result of calling `.to_dict()` on the parameter
+    parameters: list[dict[str, Any]]
 
-    class Config:
-        arbitrary_types_allowed = True
+
+@app.get("/filters")
+async def get_all_filters() -> JSONResponse:
+    """Return all filters."""
+    filters = await redis_conn.smembers("filters")
+
+    return JSONResponse(
+        content={
+            "filters": [
+                dict(FilterMetadata.parse_raw(f.translate(f.maketrans(b"'()", b'"[]'))))
+                for f in filters
+            ]
+        },
+        status_code=200,
+    )
 
 
 @app.get("/filters/{filter_id}")
@@ -122,17 +105,9 @@ async def create_filter(filter_metadata: FilterMetadata) -> Type[ImageFilter]:
     filter_cls.__doc__ = filter_metadata.description
     setattr(filter_cls, "filter_id", filter_metadata.filter_id)
 
-    await redis_conn.rpush(
+    await redis_conn.sadd(
         "filters",
-        str(
-            {
-                "id": filter_metadata.filter_id,
-                "name": filter_metadata.name,
-                "description": filter_metadata.description,
-                "inputs": filter_metadata.inputs,
-                "parameters": filter_metadata.parameters,
-            }
-        ),
+        str(filter_cls.to_dict()),  # type: ignore
     )
 
     return filter_cls
@@ -144,5 +119,5 @@ async def apply_filter(filter_id: int, ws: WebSocket) -> None:
     ...
 
 
-if __name__ == "__main__":
-    asyncio.run(serve(app, Config()))  # type: ignore
+subprocess.run(["redis-server", "--daemonize", "yes"])
+asyncio.run(serve(app, Config()))  # type: ignore

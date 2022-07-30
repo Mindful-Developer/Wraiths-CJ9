@@ -3,8 +3,8 @@ from typing import Any
 import cv2
 from cv2 import Mat
 
-from .image_filter import ImageFilter
-from .parameter import Parameter, ParamType
+from ..image_filter import ImageFilter
+from ..parameter import Parameter, ParamType
 
 __all__ = ("Ghosting",)
 

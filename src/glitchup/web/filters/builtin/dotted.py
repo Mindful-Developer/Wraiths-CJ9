@@ -5,8 +5,8 @@ import cv2 as cv
 import numpy as np
 from numpy.typing import NDArray
 
-from .image_filter import ImageFilter
-from .parameter import Parameter, ParamType
+from ..image_filter import ImageFilter
+from ..parameter import Parameter, ParamType
 
 __all__ = ("Dotted",)
 
