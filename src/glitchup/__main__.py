@@ -1,9 +1,6 @@
 import asyncio
-import json
-import subprocess
 import uuid
 from pathlib import Path
-
 from typing import Any, Type
 
 from cv2 import Mat
@@ -13,7 +10,6 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from hypercorn.asyncio import serve
 from hypercorn.config import Config
-
 from rq.command import send_shutdown_command
 from web.filters.builtin.dotted import Dotted  # type: ignore
 from web.filters.builtin.ghosting import Ghosting  # type: ignore
@@ -35,6 +31,7 @@ FILTERS = {
     "983": Number,
     "984": MetalDot,
 }
+
 
 @app.on_event("startup")
 async def setup() -> None:
@@ -83,7 +80,8 @@ async def get_filter(filter_id: str) -> JSONResponse:
     return JSONResponse(
         status_code=200,
         content=filter_class.to_dict(),
-        )
+    )
+
 
 @app.get("/filters")
 async def get_all_filters() -> JSONResponse:
@@ -105,14 +103,12 @@ async def get_all_filters() -> JSONResponse:
 async def create_filter(filter_metadata: FilterMetadata) -> Type[ImageFilter]:
     """Create a new filter. This is essentially a class factory."""
 
-    @staticmethod
     def metadata() -> tuple[int, list[Parameter]]:
         return filter_metadata.inputs, [
             p for p in [Parameter.from_dict(p) for p in filter_metadata.parameters]
         ]
 
-    @classmethod
-    def apply(cls, images: list[Mat], params: dict[str, Any]) -> None:
+    def apply(images: list[Mat], params: dict[str, Any]) -> None:
         """Apply the filter to the image."""
         ...
 
