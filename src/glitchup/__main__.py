@@ -1,10 +1,8 @@
 import asyncio
+import subprocess
 import uuid
 from pathlib import Path
-from typing import Any, Type
 
-from cv2 import Mat
-# import httpx
 from fastapi import FastAPI, WebSocket
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -15,12 +13,8 @@ from web.filters.builtin.dotted import Dotted  # type: ignore
 from web.filters.builtin.ghosting import Ghosting  # type: ignore
 from web.filters.builtin.metaldot import MetalDot  # type: ignore
 from web.filters.builtin.number import Number  # type: ignore
-from web.filters.image_filter import ImageFilter  # type: ignore
-from web.filters.parameter import Parameter  # type: ignore
 from web.models import FilterMetadata  # type: ignore
 from web.worker import Worker, redis_conn, redis_queue  # type: ignore
-
-# from web.factory import FilterFactory  # type: ignore
 
 app = FastAPI()
 BASE_DIR = Path(__file__).resolve().parent
@@ -76,7 +70,9 @@ async def get_filter(filter_id: str) -> JSONResponse:
             status_code=404,
             content={"message": f"Filter {filter_id} not found."},
         )
+
     filter_class = FILTERS[filter_id]
+
     return JSONResponse(
         status_code=200,
         content=filter_class.to_dict(),
@@ -99,34 +95,6 @@ async def get_all_filters() -> JSONResponse:
     )
 
 
-@app.post("/filters/create/")
-async def create_filter(filter_metadata: FilterMetadata) -> Type[ImageFilter]:
-    """Create a new filter. This is essentially a class factory."""
-
-    def metadata() -> tuple[int, list[Parameter]]:
-        return filter_metadata.inputs, [
-            p for p in [Parameter.from_dict(p) for p in filter_metadata.parameters]
-        ]
-
-    def apply(images: list[Mat], params: dict[str, Any]) -> None:
-        """Apply the filter to the image."""
-        ...
-
-    filter_cls = type(
-        f"{filter_metadata.name}",
-        (ImageFilter,),
-        {"metadata": metadata, "apply": apply},
-    )
-    filter_cls.__doc__ = filter_metadata.description
-    setattr(filter_cls, "filter_id", filter_metadata.filter_id)
-
-    redis_conn.sadd(
-        "filters",
-        str(filter_cls.to_dict()),  # type: ignore
-    )
-    return filter_cls
-
-
 @app.post("/images/upload")
 async def upload_image() -> int:
     """Upload an image to the server."""
@@ -144,4 +112,5 @@ async def apply_filter_to_image(ws: WebSocket, image_id: int, filter_id: int) ->
     ...
 
 
+subprocess.run(["redis-server", "--daemonize", "yes"])
 asyncio.run(serve(app, Config()))  # type: ignore

@@ -23,12 +23,12 @@ class ImageFilter(ABC):
     @abstractmethod
     def metadata() -> tuple[int, list[Parameter]]:
         """Return a tuple containing the inputs and parameters of the filter."""
-        ...
+        raise NotImplementedError
 
     @classmethod
     def apply(cls, images: list[Mat], params: dict[str, Any]) -> None:
         """Apply the filter to the image."""
-        ...
+        raise NotImplementedError
 
     @classmethod
     def to_dict(cls) -> dict[str, Any]:
