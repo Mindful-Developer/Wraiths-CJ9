@@ -23,129 +23,179 @@
       </div>
     </header>
 
-    <main>
-      <form class="container d-flex flex-column flex-lg-row" action="">
-        <div
-          class="col-12 border border-success rounded-start col-lg-2 d-flex flex-column"
-        >
-          <header class="bg-success text-center py-2">
-            <h3>Filters</h3>
-          </header>
-          <section class="d-flex flex-column text-secondary text-center p-4">
-            <article class="d-flex flex-row">
-              <div class="d-flex flex-column">
-                <p class="m-0">Ghosting</p>
-                <figure>
-                  <img
-                    class="bottom img-thumbnail"
-                    src="static/images/ghosting-post.png"
-                    alt="after ghosting"
-                  />
-                  <img
-                    class="top img-thumbnail"
-                    src="static/images/ghosting-pre.jpg"
-                    alt="before ghosting"
-                  />
-                </figure>
-              </div>
-              <input class="ms-3 filter" type="radio" name="filter" id="982" />
-            </article>
-            <!--            <article class="d-flex flex-row">-->
-            <!--              <div class="d-flex flex-column">-->
-            <!--                <p class="m-0">Pixel Sort</p>-->
-            <!--                <figure>-->
-            <!--                  <img-->
-            <!--                    class="bottom img-thumbnail"-->
-            <!--                    src="static/images/pixelsort-post.jpg"-->
-            <!--                    alt="after sorting"-->
-            <!--                  />-->
-            <!--                  <img-->
-            <!--                    class="top img-thumbnail"-->
-            <!--                    src="static/images/pixelsort-pre.jpg"-->
-            <!--                    alt="before sorting"-->
-            <!--                  />-->
-            <!--                </figure>-->
-            <!--              </div>-->
-            <!--              <input class="ms-3" type="radio" name="filter" id="CHANGEME" />-->
-            <!--            </article>-->
-            <article class="d-flex flex-row">
-              <div class="d-flex flex-column">
-                <p class="m-0">Dotted</p>
-                <figure>
-                  <img
-                    class="bottom img-thumbnail"
-                    src="static/images/dottedfilter-post.png"
-                    alt="after dotting"
-                  />
-                  <img
-                    class="top img-thumbnail"
-                    src="static/images/dottedfilter-pre.png"
-                    alt="before dotting"
-                  />
-                </figure>
-              </div>
-              <input class="ms-3 filter" type="radio" name="filter" id="981" />
-            </article>
-            <article class="d-flex flex-row">
-              <div class="d-flex flex-column">
-                <p class="m-0">Number</p>
-                <figure>
-                  <img
-                    class="bottom img-thumbnail"
-                    src="static/images/number-post.jpg"
-                    alt="after number"
-                  />
-                  <img
-                    class="top img-thumbnail"
-                    src="static/images/number-pre.jpg"
-                    alt="before number"
-                  />
-                </figure>
-              </div>
-              <input class="ms-3 filter" type="radio" name="filter" id="983" />
-            </article>
-            <article class="d-flex flex-row">
-              <div class="d-flex flex-column">
-                <p class="m-0">Metal Dot</p>
-                <figure>
-                  <img
-                    class="bottom img-thumbnail"
-                    src="static/images/metaldot-post.jpg"
-                    alt="after dotting"
-                  />
-                  <img
-                    class="top img-thumbnail"
-                    src="static/images/metaldot-pre.jpg"
-                    alt="before dotting"
-                  />
-                </figure>
-              </div>
-              <input class="ms-3 filter" type="radio" name="filter" id="984" />
-            </article>
-          </section>
+    <main class="container">
+      <div class="modal fade" id="modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="modalLabel"></h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="modalContent">
+              None yet
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+              <button type="button" class="btn btn-primary d-none">Download</button>
+            </div>
+          </div>
         </div>
-        <div
-          class="col-12 border border-success col-lg-8 d-flex flex-column"
-          id="parameters"
-        >
-          <header class="bg-success text-center py-2">
-            <h3>Parameters</h3>
-          </header>
-        </div>
-        <div
-          class="col-12 border border-success rounded-end col-lg-2 d-flex flex-column"
-          id="fileInputs"
-        >
-          <header class="bg-success text-center py-2">
-            <h3>Images</h3>
-          </header>
+      </div>
+      <form id="form-submit">
+        <div class="d-flex flex-column flex-lg-row">
+          <div
+            class="col-12 border border-success rounded-start col-lg-2 d-flex flex-column"
+          >
+            <header class="bg-success text-center py-2">
+              <h3>Filters</h3>
+            </header>
+            <section class="d-flex flex-column text-secondary text-center p-4">
+              <article class="d-flex flex-row">
+                <div class="d-flex flex-column">
+                  <p class="m-0">Ghosting</p>
+                  <figure>
+                    <img
+                      class="bottom img-thumbnail"
+                      src="static/images/ghosting-post.png"
+                      alt="after ghosting"
+                    />
+                    <img
+                      class="top img-thumbnail"
+                      src="static/images/ghosting-pre.jpg"
+                      alt="before ghosting"
+                    />
+                  </figure>
+                </div>
+                <input
+                  class="ms-3 filter"
+                  type="radio"
+                  name="filter"
+                  id="982"
+                />
+              </article>
+              <article class="d-flex flex-row">
+                <div class="d-flex flex-column">
+                  <p class="m-0">Pixel Sort</p>
+                  <figure>
+                    <img
+                      class="bottom img-thumbnail"
+                      src="static/images/pixelsort-post.jpg"
+                      alt="after sorting"
+                    />
+                    <img
+                      class="top img-thumbnail"
+                      src="static/images/pixelsort-pre.jpg"
+                      alt="before sorting"
+                    />
+                  </figure>
+                </div>
+                <input class="ms-3" type="radio" name="filter" id="985" />
+              </article>
+              <article class="d-flex flex-row">
+                <div class="d-flex flex-column">
+                  <p class="m-0">Dotted</p>
+                  <figure>
+                    <img
+                      class="bottom img-thumbnail"
+                      src="static/images/dottedfilter-post.png"
+                      alt="after dotting"
+                    />
+                    <img
+                      class="top img-thumbnail"
+                      src="static/images/dottedfilter-pre.png"
+                      alt="before dotting"
+                    />
+                  </figure>
+                </div>
+                <input
+                  class="ms-3 filter"
+                  type="radio"
+                  name="filter"
+                  id="981"
+                />
+              </article>
+              <article class="d-flex flex-row">
+                <div class="d-flex flex-column">
+                  <p class="m-0">Number</p>
+                  <figure>
+                    <img
+                      class="bottom img-thumbnail"
+                      src="static/images/number-post.jpg"
+                      alt="after number"
+                    />
+                    <img
+                      class="top img-thumbnail"
+                      src="static/images/number-pre.jpg"
+                      alt="before number"
+                    />
+                  </figure>
+                </div>
+                <input
+                  class="ms-3 filter"
+                  type="radio"
+                  name="filter"
+                  id="983"
+                />
+              </article>
+              <article class="d-flex flex-row">
+                <div class="d-flex flex-column">
+                  <p class="m-0">Metal Dot</p>
+                  <figure>
+                    <img
+                      class="bottom img-thumbnail"
+                      src="static/images/metaldot-post.jpg"
+                      alt="after dotting"
+                    />
+                    <img
+                      class="top img-thumbnail"
+                      src="static/images/metaldot-pre.jpg"
+                      alt="before dotting"
+                    />
+                  </figure>
+                </div>
+                <input
+                  class="ms-3 filter"
+                  type="radio"
+                  name="filter"
+                  id="984"
+                />
+              </article>
+            </section>
+          </div>
+          <div
+            class="col-12 border border-success col-lg-5 d-flex flex-column"
+            id="parameters"
+          >
+            <header class="bg-success text-center py-2">
+              <h3>Parameters</h3>
+            </header>
+          </div>
+          <div
+            class="col-12 border border-success rounded-end col-lg-4 d-flex flex-column"
+            id="fileInputs"
+          >
+            <header class="bg-success text-center py-2">
+              <h3>Images</h3>
+            </header>
+          </div>
+          <button
+            class="btn btn-success text-dark btn-lg btn-block col-lg-1"
+            type="button"
+            id="generate"
+            data-bs-toggle="modal"
+            data-bs-target="#modal"
+            disabled
+            >
+            Generate
+          </button>
         </div>
       </form>
     </main>
-    <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"
-          integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa"
-          crossorigin="anonymous">
-    </script> -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa"
+      crossorigin="anonymous"
+    ></script>
     <script src="static/app.js"></script>
   </body>
 </html>

@@ -19,7 +19,7 @@ class Ghosting(ImageFilter):
         """Return a tuple containing the inputs and parameters of the filter."""
         return 1, [
             Parameter(
-                ParamType.INT,
+                ParamType.FLOAT,
                 "opacity",
                 default=0.25,
                 param_range=(0.0, 0.75),
