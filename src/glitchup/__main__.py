@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import asyncio
 from pathlib import Path
 
@@ -27,6 +29,19 @@ FILTERS = {
     "984": MetalDot,
     "985": PixelSort,
 }
+
+
+@app.on_event("startup")
+async def setup() -> None:
+    """Configure and set a few things on app startup."""
+    redis_conn.sadd(
+        "filters",
+        str(Ghosting.to_dict()),
+        str(Dotted.to_dict()),
+        str(Number.to_dict()),
+        str(MetalDot.to_dict()),
+        str(PixelSort.to_dict()),
+    )
 
 
 @app.on_event("shutdown")
