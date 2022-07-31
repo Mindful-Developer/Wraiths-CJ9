@@ -1,13 +1,12 @@
 """Filter for a RGB shifted 3D glasses effect"""
 
-from random import randint as rnt
-from typing import Any, List
+from typing import Any
 
-import cv2 as cv  # type: ignore
+import cv2 as cv
 import numpy as np
 
-from src.glitchup.web.filters.image_filter import ImageFilter
-from src.glitchup.web.filters.parameter import Parameter, ParamType
+from ..image_filter import ImageFilter
+from ..parameter import Parameter, ParamType
 
 
 class Shiftrgb(ImageFilter):
