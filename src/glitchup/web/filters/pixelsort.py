@@ -2,22 +2,22 @@
 
 """Pixel sorting filter"""
 
-import cv2
+from cv2 import COLOR_BGR2HSV, COLOR_HSV2BGR, cvtColor, Mat
 from typing import Any
 
-from glitchup.filters.image_filter import ImageFilter
-from glitchup.filters.parameter import Parameter
+from glitchup.web.filters.image_filter import ImageFilter
+from glitchup.web.filters.parameter import Parameter, ParamType
 
 
 class PixelSort(ImageFilter):
     """Pixel sorting filter"""
 
     NUM_INPUTS: int = 1
-    PARAMETERS: list[Parameter] = [Parameter(Parameter.Type.ENUM,
+    PARAMETERS: list[Parameter] = [Parameter(ParamType.ENUM,
                                              'direction',
                                              'horizontal',
                                              ('horizontal', 'vertical')),
-                                   Parameter(Parameter.Type.ENUM,
+                                   Parameter(ParamType.ENUM,
                                              'index_parameter',
                                              'hue',
                                              ('hue', 'saturation', 'value',
@@ -34,8 +34,11 @@ class PixelSort(ImageFilter):
         """Set of parameters"""
         return self.PARAMETERS
 
-    def apply(self, image: cv2.Mat, params: dict[str, Any]) -> None:
+    def apply(self, images: list[Mat], params: dict[str, Any]) -> None:
         """Apply pixel sort to image"""
+        # Extract only the first image
+        image = images[0]
+
         # Apply default parameters
         parameters = {}
         for parameter in self.PARAMETERS:
@@ -50,11 +53,11 @@ class PixelSort(ImageFilter):
         # Apply filter
         self._filter(image, parameters)
 
-    def _filter(self, img: cv2.Mat, params: dict[str, Any]) -> None:
+    def _filter(self, img: Mat, params: dict[str, Any]) -> None:
         # Change colour space, if necessary
         match params['index_parameter']:
             case 'hue' | 'saturation' | 'value':
-                cv2.cvtColor(img, cv2.COLOR_BGR2HSV, img)
+                cvtColor(img, COLOR_BGR2HSV, img)
             case 'red' | 'green' | 'blue':
                 pass
             case _:
@@ -83,13 +86,14 @@ class PixelSort(ImageFilter):
         # Revert colour space, if necessary
         match params['index_parameter']:
             case 'hue' | 'saturation' | 'value':
-                cv2.cvtColor(img, cv2.COLOR_HSV2BGR, img)
+                cvtColor(img, COLOR_HSV2BGR, img)
             case 'red' | 'green' | 'blue':
                 pass
 
 
 def main() -> None:
     """Tests"""
+    from cv2 import imread, imwrite
     import os
 
     filt = PixelSort()
@@ -97,12 +101,12 @@ def main() -> None:
         print(f'Loading {filename}...')
         input_path = os.path.join('input_images', filename)
         name, ext = os.path.splitext(filename)
-        img = cv2.imread(input_path)
+        img = imread(input_path)
 
         print(f'Saving copy of {filename}')
         output_filename = filename
         output_path = os.path.join('output_images', output_filename)
-        cv2.imwrite(output_path, img)
+        imwrite(output_path, img)
 
         for direction in ('horizontal', 'vertical'):
             for index_parameter in ('hue', 'saturation', 'value',
@@ -118,7 +122,7 @@ def main() -> None:
 
                 print(f'Saving {output_filename}...')
                 output_path = os.path.join('output_images', output_filename)
-                cv2.imwrite(output_path, img_copy)
+                imwrite(output_path, img_copy)
 
 
 if __name__ == '__main__':
