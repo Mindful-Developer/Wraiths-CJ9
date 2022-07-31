@@ -31,19 +31,6 @@ FILTERS = {
 }
 
 
-@app.on_event("startup")
-async def setup() -> None:
-    """Configure and set a few things on app startup."""
-    redis_conn.sadd(
-        "filters",
-        str(Ghosting.to_dict()),
-        str(Dotted.to_dict()),
-        str(Number.to_dict()),
-        str(MetalDot.to_dict()),
-        str(PixelSort.to_dict()),
-    )
-
-
 @app.on_event("shutdown")
 async def shutdown() -> None:
     """Shutdown the web server and connections to database."""
@@ -64,7 +51,6 @@ async def root() -> FileResponse:
 @app.get("/filters/{filter_id}")
 async def get_filter(filter_id: str) -> JSONResponse:
     """Get a filter by ID."""
-    print(filter_id)
     if filter_id not in FILTERS:
         return JSONResponse(
             status_code=404,
@@ -75,22 +61,6 @@ async def get_filter(filter_id: str) -> JSONResponse:
     return JSONResponse(
         status_code=200,
         content=filter_class.to_dict(),
-    )
-
-
-@app.get("/filters")
-async def get_all_filters() -> JSONResponse:
-    """Return all filters."""
-    filters = redis_conn.smembers("filters")
-
-    return JSONResponse(
-        content={
-            "filters": [
-                dict(FilterMetadata.parse_raw(f.translate(f.maketrans("'()", '"[]'))))
-                for f in filters
-            ]
-        },
-        status_code=200,
     )
 
 
