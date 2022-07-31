@@ -7,7 +7,6 @@ from attrs import define, field
 
 __all__ = ("Parameter", "ParamType")
 
-# tuple[int | float, int | float] | None (mypy doesn't like this; the type below hopefully is temporary)
 PARAM_VALUE: TypeAlias = Union[int, float, str]
 PARAM_RANGE: TypeAlias = tuple[Union[int, float, str], ...]
 
