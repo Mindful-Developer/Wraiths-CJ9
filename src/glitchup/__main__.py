@@ -70,7 +70,7 @@ async def get_filter(filter_id: str) -> JSONResponse:
 
 
 @app.post("/filters/create/")
-async def create_filter(form: ) -> Type[ImageFilter]:
+async def create_filter(filter_metadata: FilterMetadata) -> Type[ImageFilter]:
     """Create a new filter."""
     filter_cls = type(f"{filter_metadata.name}", (ImageFilter,), {})
     filter_cls.__doc__ = filter_metadata.description
