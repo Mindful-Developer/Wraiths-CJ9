@@ -25,7 +25,7 @@ class Parameter:
 
     _param_type: ParamType
     _name: str
-    _default: int | float | str
+    _default: PARAM_VALUE
     _param_range: Optional[PARAM_RANGE] = field(default=None)
 
     @property
