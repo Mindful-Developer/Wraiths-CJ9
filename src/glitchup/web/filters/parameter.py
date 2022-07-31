@@ -1,6 +1,3 @@
-"""Defining configuration parameter of a filter"""
-
-
 from __future__ import annotations
 
 from enum import Enum, auto
@@ -8,19 +5,22 @@ from typing import Any, Optional, TypeAlias, Union
 
 from attrs import define, field
 
-__all__ = ("Parameter",)
+__all__ = ("Parameter", "ParamType")
 
 # tuple[int | float, int | float] | None (mypy doesn't like this; the type below hopefully is temporary)
 PARAM_RANGE: TypeAlias = Optional[tuple[Union[int, float], Union[int, float]]]
 
 
+class ParamType(Enum):
+    """Enum for the types of parameters."""
+
+    INT = auto()
+    FLOAT = auto()
+
+
 @define
 class Parameter:
     """Configurable parameter of a filter"""
-
-    class ParamType(Enum):
-        INT = auto()
-        FLOAT = auto()
 
     _param_type: ParamType
     _name: str
@@ -60,5 +60,8 @@ class Parameter:
     def from_dict(d: dict[str, Any]) -> Parameter:
         """Create a parameter from a dictionary"""
         return Parameter(
-            Parameter.ParamType[d["type"]], d["name"], d["default"], d["range"]
+            d["type"],
+            d["name"],
+            d["default"],
+            d["range"],
         )

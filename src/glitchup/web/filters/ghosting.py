@@ -1,39 +1,39 @@
-"""Filter for a ghosting effect"""
-
 from typing import Any
 
 import cv2
 from cv2 import Mat
 
-from glitchup.filters.image_filter import ImageFilter
-from glitchup.filters.parameter import Parameter
+from .image_filter import ImageFilter
+from .parameter import Parameter, ParamType
+
+__all__ = ("Ghosting",)
 
 
 class Ghosting(ImageFilter):
     """Blurs the image in the positive direction on the y-axis"""
 
-    def num_inputs(self) -> int:
-        """Return the number of inputs this filter requires."""
-        return 1
+    filter_id = 982
 
-    def get_params(self) -> list[Parameter]:
-        """Return the list of parameters for this filter."""
-        return [
+    @staticmethod
+    def metadata() -> tuple[int, list[Parameter]]:
+        """Return a tuple containing the inputs and parameters of the filter."""
+        return 1, [
             Parameter(
-                Parameter.ParamType.FLOAT,
+                ParamType.INT,
                 "opacity",
                 default=0.25,
                 param_range=(0.0, 0.75),
             ),
             Parameter(
-                Parameter.ParamType.INT,
+                ParamType.INT,
                 "number of ghosts",
                 default=10,
                 param_range=(7, 13),
             ),
         ]
 
-    def apply(self, images: list[Mat], params: dict[str, Any]) -> None:
+    @classmethod
+    def apply(cls, images: list[Mat], params: dict[str, Any]) -> None:
         """Apply the filter to the image."""
         image = images[0]
         opacity = params["opacity"].default
@@ -41,26 +41,19 @@ class Ghosting(ImageFilter):
 
         for i in range(num_ghosts):
             y = i * i
-
-            # Create a copy of the image and translate it down
             translated_image = cv2.copyMakeBorder(
                 image, y, y + 1, 0, 0, cv2.BORDER_CONSTANT, value=(0, 0, 0)
             )
-
-            # Remove the excess pixels
-            translated_image = translated_image[0: image.shape[0], 0: image.shape[1]]
-
-            # Blend the images together
+            translated_image = translated_image[0:image.shape[0], 0:image.shape[1]]
             cv2.addWeighted(translated_image, opacity, image, 1 - opacity, 0, image)
 
 
 if __name__ == "__main__":
-    filter = Ghosting()
-    params = filter.get_params()
-    param_dict = {param.name: param for param in params}
+    param_list = Ghosting.metadata()[1]
+    param_dict = {param.name: param for param in param_list}
     img = cv2.imread(r"D:\test.jpg")
     cv2.imshow("Original", img)
-    filter.apply([img], param_dict)
+    Ghosting.apply([img], param_dict)
     cv2.imshow("Ghosting", img)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
