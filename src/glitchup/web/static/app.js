@@ -77,6 +77,7 @@ function createDropdownInput(options, defaultValue) {
     dropdown.appendChild(optionElement);
   }
   dropdown.value = defaultValue;
+  div.appendChild()
   div.appendChild(dropdown);
   return div;
 }
@@ -151,6 +152,19 @@ generateButton.addEventListener("click", () => {
   const id = uuid4();
   form = document.getElementById("formSubmit");
   const formData = new FormData(form);
+  img = document.getElementById("frame1");
+  // upload the image to /images/upload
+  file = document.getElementById("formFile").files[0];
+  data = new FormData();
+  data.append("file", file);
+  data.append("id", id);
+  fetch ("/images/upload", {
+    method: "POST",
+    body: data,
+    headers: {
+      "Content-Type": "multipart/form-data"
+    }
+  })
   formData.append("id", id);
   fetch("/images/add", {
     method: "POST",
