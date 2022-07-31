@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import asyncio
 import subprocess
 import uuid
@@ -13,6 +15,7 @@ from web.filters.builtin.dotted import Dotted  # type: ignore
 from web.filters.builtin.ghosting import Ghosting  # type: ignore
 from web.filters.builtin.metaldot import MetalDot  # type: ignore
 from web.filters.builtin.number import Number  # type: ignore
+from web.filters.builtin.pixelsort import PixelSort  # type: ignore
 from web.models import FilterMetadata  # type: ignore
 from web.worker import Worker, redis_conn, redis_queue  # type: ignore
 
@@ -24,6 +27,7 @@ FILTERS = {
     "982": Ghosting,
     "983": Number,
     "984": MetalDot,
+    "985": PixelSort,
 }
 
 
@@ -36,6 +40,7 @@ async def setup() -> None:
         str(Dotted.to_dict()),
         str(Number.to_dict()),
         str(MetalDot.to_dict()),
+        str(PixelSort.to_dict()),
     )
 
 

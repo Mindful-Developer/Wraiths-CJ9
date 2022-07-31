@@ -1,3 +1,3 @@
-from . import dotted, ghosting, metaldot, number
+from . import dotted, ghosting, metaldot, number, pixelsort
 
-__all__ = ("dotted", "ghosting", "metaldot", "number")
+__all__ = ("dotted", "ghosting", "metaldot", "number", "pixelsort")
