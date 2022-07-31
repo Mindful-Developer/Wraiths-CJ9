@@ -1,13 +1,13 @@
-#! /usr/bin/env python3
-
 """Pixel sorting filter"""
 
 from typing import Any, Dict, List
 
+from typing import Any
+
 from cv2 import COLOR_BGR2HSV, COLOR_HSV2BGR, Mat, cvtColor
 
-from glitchup.web.filters.image_filter import ImageFilter
-from glitchup.web.filters.parameter import Parameter, ParamType
+from ..image_filter import ImageFilter
+from ..parameter import Parameter, ParamType
 
 
 class PixelSort(ImageFilter):
@@ -16,18 +16,18 @@ class PixelSort(ImageFilter):
     filter_id = 985
 
     NUM_INPUTS: int = 1
-    PARAMETERS: list[Parameter] = [Parameter(ParamType.ENUM,
-                                             'direction',
-                                             'horizontal',
-                                             ('horizontal', 'vertical')),
-                                   Parameter(ParamType.ENUM,
-                                             'index_parameter',
-                                             'hue',
-                                             ('hue', 'saturation', 'value',
-                                              'red', 'green', 'blue'))]
 
-    def __init__(self) -> None:
-        pass
+    PARAMETERS: list[Parameter] = [
+        Parameter(
+            ParamType.ENUM, "direction", "horizontal", ("horizontal", "vertical")
+        ),
+        Parameter(
+            ParamType.ENUM,
+            "index_parameter",
+            "hue",
+            ("hue", "saturation", "value", "red", "green", "blue"),
+        ),
+    ]
 
     @classmethod
     def metadata(cls) -> tuple[int, list[Parameter]]:
@@ -35,7 +35,7 @@ class PixelSort(ImageFilter):
         return len(cls.PARAMETERS), cls.PARAMETERS
 
     @classmethod
-    def apply(cls, images: List[Any], params: Dict[str, Any]) -> None:
+    def apply(cls, images: list[Mat], params: dict[str, Any]) -> None:
         """Apply pixel sort to image"""
         # Extract only the first image
         image = images[0]
@@ -99,36 +99,41 @@ def main() -> None:
 
     from cv2 import imread, imwrite
 
-    INPUT_DIR = 'input_images'
-    OUTPUT_DIR = 'output_dir'
+    INPUT_DIR = "input_images"
+    OUTPUT_DIR = "output_dir"
 
     for filename in os.listdir(INPUT_DIR):
-        print(f'Loading {filename}...')
+        print(f"Loading {filename}...")
         input_path = os.path.join(INPUT_DIR, filename)
         name, ext = os.path.splitext(filename)
         img = imread(input_path)
 
-        print(f'Saving copy of {filename}')
+        print(f"Saving copy of {filename}")
         output_filename = filename
         output_path = os.path.join(OUTPUT_DIR, output_filename)
         imwrite(output_path, img)
 
-        for direction in ('horizontal', 'vertical'):
-            for index_parameter in ('hue', 'saturation', 'value',
-                                    'red', 'green', 'blue'):
-                params = {'direction': direction,
-                          'index_parameter': index_parameter}
+        for direction in ("horizontal", "vertical"):
+            for index_parameter in (
+                "hue",
+                "saturation",
+                "value",
+                "red",
+                "green",
+                "blue",
+            ):
+                params = {"direction": direction, "index_parameter": index_parameter}
 
-                print(f'Applying PixelSort filter ({direction}, {index_parameter})...')
+                print(f"Applying PixelSort filter ({direction}, {index_parameter})...")
                 img_copy = img.copy()
                 PixelSort.apply([img_copy], params)
 
-                output_filename = name + f'-{direction}-{index_parameter}' + ext
+                output_filename = name + f"-{direction}-{index_parameter}" + ext
 
-                print(f'Saving {output_filename}...')
+                print(f"Saving {output_filename}...")
                 output_path = os.path.join(OUTPUT_DIR, output_filename)
                 imwrite(output_path, img_copy)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

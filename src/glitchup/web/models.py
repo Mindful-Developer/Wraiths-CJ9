@@ -4,12 +4,16 @@ from typing import Any
 from pydantic import BaseModel
 
 
-class FilterMetadata(BaseModel):
-    """Metadata for a filter."""
+class UploadedImage(BaseModel):
+    """Model for uploaded image."""
 
-    filter_id: int = uuid.uuid4().int
-    name: str
-    description: str
-    inputs: int
-    # the dict stored here is the result of calling `.to_dict()` on the parameter
-    parameters: list[dict[str, Any]]
+    id: int = uuid.uuid4().int
+    path: str
+
+    @classmethod
+    def to_dict(cls) -> dict[str, Any]:
+        """Return a dictionary representation of the model."""
+        return {
+            "id": cls.id,
+            "path": cls.path,
+        }

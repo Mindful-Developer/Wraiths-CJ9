@@ -1,7 +1,7 @@
 import multiprocessing as mp
 from typing import Any
 
-import redis  # type: ignore
+import redis
 import rq
 from cv2 import Mat
 from rq.decorators import job
