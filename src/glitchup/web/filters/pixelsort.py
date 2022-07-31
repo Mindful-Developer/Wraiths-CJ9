@@ -34,7 +34,7 @@ class PixelSort(ImageFilter):
 
     def metadata(self) -> tuple[int, list[Parameter]]:
         """Set of parameters"""
-        return 1, self.PARAMETERS
+        return len(self.PARAMETERS), self.PARAMETERS
 
     def apply(self, images: list[Mat], params: dict[str, Any]) -> None:
         """Apply pixel sort to image"""
