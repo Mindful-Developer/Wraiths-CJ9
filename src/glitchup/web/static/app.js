@@ -22,7 +22,7 @@ function clearImage() {
 }
 
 async function getFilter(filterID) {
-  const filter = await fetch('/filters/' + filterID);
+  const filter = await fetch("/filters/" + filterID);
   const filterData = await filter.json();
   return filterData;
 }
@@ -31,16 +31,37 @@ async function populate(filterID) {
   const filterJSON = await getFilter(filterID);
   const fileInputs = document.getElementById("fileInputs");
   const parameters = document.getElementById("parameters");
-  fileInputs.innerHTML = `$(filterJSON.inputs)`;
-  parameters.innerHTML = `$(filterJSON.parameters)`;
+  fileInputs.innerHTML = `<header class="bg-success text-center py-2"><h3>Images</h3></header>`;
+  fileInputs.innerHTML += `
+            <div
+            class="mb-5 m-4 d-flex flex-column justify-center"
+            id="fileInput1"
+          >
+            <img id="frame1" src="" class="img-thumbnail d-none border-none" />
+            <input
+              class="form-control bg-dark text-dark border-secondary"
+              type="file"
+              id="formFile"
+              onchange="preview()"
+            />
+            <button
+              onclick="clearImage()"
+              class="btn btn-danger mt-3 d-none"
+              id="load1"
+            >
+              Remove
+            </button>
+          </div>
+  `.repeat(filterJSON.inputs);
+  parameters.innerHTML = `<header class="bg-success text-center py-2"><h3>Parameters</h3></header>`;
 }
 
-const inputs = document.getElementsByClassName("input");
+const inputs = document.getElementsByClassName("filter");
+console.log(inputs);
 for (let input of inputs) {
-    input.addEventListener("change", function() {
-        const filterID = input.id;
-        populate(filterID).then(() => {
-            console.log("populated");
-        });
-    });
+  input.addEventListener("change", () => {
+    const filterID = input.id;
+    console.log(filterID);
+    populate(filterID);
+  });
 }

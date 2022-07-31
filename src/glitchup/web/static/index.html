@@ -48,26 +48,26 @@
                   />
                 </figure>
               </div>
-              <input class="ms-3" type="radio" name="filter" id="982"/>
+              <input class="ms-3 filter" type="radio" name="filter" id="982" />
             </article>
-<!--            <article class="d-flex flex-row">-->
-<!--              <div class="d-flex flex-column">-->
-<!--                <p class="m-0">Pixel Sort</p>-->
-<!--                <figure>-->
-<!--                  <img-->
-<!--                    class="bottom img-thumbnail"-->
-<!--                    src="static/images/pixelsort-post.jpg"-->
-<!--                    alt="after sorting"-->
-<!--                  />-->
-<!--                  <img-->
-<!--                    class="top img-thumbnail"-->
-<!--                    src="static/images/pixelsort-pre.jpg"-->
-<!--                    alt="before sorting"-->
-<!--                  />-->
-<!--                </figure>-->
-<!--              </div>-->
-<!--              <input class="ms-3" type="radio" name="filter" id="CHANGEME" />-->
-<!--            </article>-->
+            <!--            <article class="d-flex flex-row">-->
+            <!--              <div class="d-flex flex-column">-->
+            <!--                <p class="m-0">Pixel Sort</p>-->
+            <!--                <figure>-->
+            <!--                  <img-->
+            <!--                    class="bottom img-thumbnail"-->
+            <!--                    src="static/images/pixelsort-post.jpg"-->
+            <!--                    alt="after sorting"-->
+            <!--                  />-->
+            <!--                  <img-->
+            <!--                    class="top img-thumbnail"-->
+            <!--                    src="static/images/pixelsort-pre.jpg"-->
+            <!--                    alt="before sorting"-->
+            <!--                  />-->
+            <!--                </figure>-->
+            <!--              </div>-->
+            <!--              <input class="ms-3" type="radio" name="filter" id="CHANGEME" />-->
+            <!--            </article>-->
             <article class="d-flex flex-row">
               <div class="d-flex flex-column">
                 <p class="m-0">Dotted</p>
@@ -84,7 +84,7 @@
                   />
                 </figure>
               </div>
-              <input class="ms-3" type="radio" name="filter" id="981"/>
+              <input class="ms-3 filter" type="radio" name="filter" id="981" />
             </article>
             <article class="d-flex flex-row">
               <div class="d-flex flex-column">
@@ -102,7 +102,7 @@
                   />
                 </figure>
               </div>
-              <input class="ms-3" type="radio" name="filter" id="983"/>
+              <input class="ms-3 filter" type="radio" name="filter" id="983" />
             </article>
             <article class="d-flex flex-row">
               <div class="d-flex flex-column">
@@ -120,11 +120,14 @@
                   />
                 </figure>
               </div>
-              <input class="ms-3" type="radio" name="filter" id="984"/>
+              <input class="ms-3 filter" type="radio" name="filter" id="984" />
             </article>
           </section>
         </div>
-        <div class="col-12 border border-success col-lg-8 d-flex flex-column" id="parameters">
+        <div
+          class="col-12 border border-success col-lg-8 d-flex flex-column"
+          id="parameters"
+        >
           <header class="bg-success text-center py-2">
             <h3>Parameters</h3>
           </header>
@@ -136,25 +139,6 @@
           <header class="bg-success text-center py-2">
             <h3>Images</h3>
           </header>
-          <div
-            class="mb-5 m-4 d-flex flex-column justify-center"
-            id="fileInput1"
-          >
-            <img id="frame1" src="" class="img-thumbnail d-none border-none" />
-            <input
-              class="form-control bg-dark text-dark border-secondary "
-              type="file"
-              id="formFile"
-              onchange="preview()"
-            />
-            <button
-              onclick="clearImage()"
-              class="btn btn-danger mt-3 d-none"
-              id="load1"
-            >
-              Remove
-            </button>
-          </div>
         </div>
       </form>
     </main>

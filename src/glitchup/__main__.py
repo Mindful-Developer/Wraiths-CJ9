@@ -30,18 +30,6 @@ FILTERS = {
 }
 
 
-@app.on_event("startup")
-async def setup() -> None:
-    """Configure and set a few things on app startup."""
-    await redis_conn.sadd(
-        "filters",
-        str(Ghosting.to_dict()),
-        str(Dotted.to_dict()),
-        str(Number.to_dict()),
-        str(MetalDot.to_dict()),
-    )
-
-
 @app.on_event("shutdown")
 async def shutdown() -> None:
     """Shutdown the web server and connections to database."""
@@ -66,22 +54,6 @@ class FilterMetadata(BaseModel):
     parameters: list[dict[str, Any]]
 
 
-@app.get("/filters")
-async def get_all_filters() -> JSONResponse:
-    """Return all filters."""
-    filters = await redis_conn.smembers("filters")
-
-    return JSONResponse(
-        content={
-            "filters": [
-                dict(FilterMetadata.parse_raw(f.translate(f.maketrans(b"'()", b'"[]'))))
-                for f in filters
-            ]
-        },
-        status_code=200,
-    )
-
-
 @app.get("/filters/{filter_id}")
 async def get_filter(filter_id: str) -> JSONResponse:
     """Get a filter by ID."""
@@ -93,13 +65,12 @@ async def get_filter(filter_id: str) -> JSONResponse:
     filter_class = FILTERS[filter_id]
     return JSONResponse(
         status_code=200,
-        content=filter_class.to_json(),
+        content=filter_class.to_dict(),
         )
 
 
-
 @app.post("/filters/create/")
-async def create_filter(filter_metadata: FilterMetadata) -> Type[ImageFilter]:
+async def create_filter(form: ) -> Type[ImageFilter]:
     """Create a new filter."""
     filter_cls = type(f"{filter_metadata.name}", (ImageFilter,), {})
     filter_cls.__doc__ = filter_metadata.description
@@ -109,7 +80,6 @@ async def create_filter(filter_metadata: FilterMetadata) -> Type[ImageFilter]:
         "filters",
         str(filter_cls.to_dict()),  # type: ignore
     )
-
     return filter_cls
 
 
@@ -119,5 +89,4 @@ async def apply_filter(filter_id: int, ws: WebSocket) -> None:
     ...
 
 
-subprocess.run(["redis-server", "--daemonize", "yes"])
 asyncio.run(serve(app, Config()))  # type: ignore
