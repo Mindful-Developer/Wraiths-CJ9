@@ -1,7 +1,7 @@
 import asyncio
 import subprocess
 from pathlib import Path
-from typing import Any, Type
+from typing import Type
 
 # import httpx
 from fastapi import FastAPI, WebSocket
@@ -9,13 +9,13 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from hypercorn.asyncio import serve
 from hypercorn.config import Config
-from pydantic import BaseModel
 from web.filters.builtin.dotted import Dotted  # type: ignore
 from web.filters.builtin.ghosting import Ghosting  # type: ignore
 from web.filters.builtin.metaldot import MetalDot  # type: ignore
 from web.filters.builtin.number import Number  # type: ignore
 from web.filters.image_filter import ImageFilter  # type: ignore
-from web.worker import redis_conn, redis_queue  # type: ignore
+from web.models import FilterMetadata  # type: ignore
+from web.worker import redis_conn  # type: ignore
 
 app = FastAPI()
 BASE_DIR = Path(__file__).resolve().parent
@@ -37,7 +37,6 @@ async def setup() -> None:
 @app.on_event("shutdown")
 async def shutdown() -> None:
     """Shutdown the web server and connections to database."""
-    redis_queue.delete()
     await redis_conn.close()
 
 
@@ -45,17 +44,6 @@ async def shutdown() -> None:
 async def root() -> FileResponse:
     """Return the root page."""
     return FileResponse(f"{BASE_DIR}/web/static/index.html")
-
-
-class FilterMetadata(BaseModel):
-    """Metadata for a filter."""
-
-    filter_id: int
-    name: str
-    description: str
-    inputs: int
-    # the dict stored here is the result of calling `.to_dict()` on the parameter
-    parameters: list[dict[str, Any]]
 
 
 @app.get("/filters")
