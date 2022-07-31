@@ -135,8 +135,43 @@ for (let input of inputs) {
   });
 }
 
-const modal = document.getElementById("modal");
-const modalContent = document.getElementById("modalContent");
+function uuid4() {  
+    return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>  
+        (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)  
+    );
+}
+
+const canvas = document.getElementById("myCanvas");
 generateButton.addEventListener("click", () => {
-  modalContent.innerHTML = 'Picture is being generated...';
+
+  const id = uuid4();
+  form = document.getElementById("formSubmit");
+  const formData = new FormData(form);
+  formData.append("id", id);
+  fetch("/images/add", {
+    method: "POST",
+    body: formData,
+  });
+
+  const downloadButton = document.getElementById("download");
+  downloadButton.addEventListener("click", () => {
+    downloadButton.setAttribute("href", `/images/${id}`);
+    downloadButton.setAttribute("download", `${id}.png`);
+  });
+
+  const ws = new WebSocket("ws://localhost:8000/images/" + id);
+  ws.onopen = () => {
+    ws.send("");
+  }
+  ws.onmessage = (event) => {
+    const image = new Image();
+    image.src = event.data;
+    image.onload = () => {
+      canvas.width = image.width;
+      canvas.height = image.height;
+      canvas.getContext("2d").drawImage(image, 0, 0);
+    }
+  }
 });
+
+
