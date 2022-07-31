@@ -4,7 +4,7 @@
 
 from typing import Any
 
-from cv2 import COLOR_BGR2HSV, COLOR_HSV2BGR, cvtColor, Mat
+from cv2 import COLOR_BGR2HSV, COLOR_HSV2BGR, Mat, cvtColor
 
 from glitchup.web.filters.image_filter import ImageFilter
 from glitchup.web.filters.parameter import Parameter, ParamType
