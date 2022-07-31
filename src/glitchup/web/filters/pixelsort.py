@@ -2,7 +2,7 @@
 
 """Pixel sorting filter"""
 
-from typing import Any
+from typing import Any, Dict, List
 
 from cv2 import COLOR_BGR2HSV, COLOR_HSV2BGR, Mat, cvtColor
 
@@ -29,22 +29,20 @@ class PixelSort(ImageFilter):
     def __init__(self) -> None:
         pass
 
-    def num_inputs(self) -> int:
-        """Number of input images"""
-        return self.NUM_INPUTS
-
-    def metadata(self) -> tuple[int, list[Parameter]]:
+    @classmethod
+    def metadata(cls) -> tuple[int, list[Parameter]]:
         """Set of parameters"""
-        return len(self.PARAMETERS), self.PARAMETERS
+        return len(cls.PARAMETERS), cls.PARAMETERS
 
-    def apply(self, images: list[Mat], params: dict[str, Any]) -> None:
+    @classmethod
+    def apply(cls, images: List[Any], params: Dict[str, Any]) -> None:
         """Apply pixel sort to image"""
         # Extract only the first image
         image = images[0]
 
         # Apply default parameters
         parameters = {}
-        for parameter in self.PARAMETERS:
+        for parameter in cls.PARAMETERS:
             parameters[parameter.name] = parameter.default
 
         # apply passed-in parameters
@@ -54,9 +52,10 @@ class PixelSort(ImageFilter):
             parameters[name] = value
 
         # Apply filter
-        self._filter(image, parameters)
+        cls._filter(image, parameters)
 
-    def _filter(self, img: Mat, params: dict[str, Any]) -> None:
+    @classmethod
+    def _filter(cls, img: Mat, params: dict[str, Any]) -> None:
         # Change colour space, if necessary
         match params['index_parameter']:
             case 'hue' | 'saturation' | 'value':
@@ -103,7 +102,6 @@ def main() -> None:
     INPUT_DIR = 'input_images'
     OUTPUT_DIR = 'output_dir'
 
-    filt = PixelSort()
     for filename in os.listdir(INPUT_DIR):
         print(f'Loading {filename}...')
         input_path = os.path.join(INPUT_DIR, filename)
@@ -123,7 +121,7 @@ def main() -> None:
 
                 print(f'Applying PixelSort filter ({direction}, {index_parameter})...')
                 img_copy = img.copy()
-                filt.apply([img_copy], params)
+                PixelSort.apply([img_copy], params)
 
                 output_filename = name + f'-{direction}-{index_parameter}' + ext
 
