@@ -1,45 +1,38 @@
-import random
-from multiprocessing import Process
+import multiprocessing as mp
 from typing import Any
 
-import aioredis
+import redis
 import rq
-from attrs import define
+from cv2 import Mat
+from rq.decorators import job
 
-redis_conn = aioredis.from_url("redis://localhost:6379")
+from .filters.image_filter import ImageFilter
+from .job import Job
+
+redis_conn = redis.Redis(decode_responses=True)
 redis_queue = rq.Queue(connection=redis_conn)
 
 
-@define(init=False)
 class Worker(rq.Worker):
-    """A worker that runs in a separate process. Subclass of Worker provided by the Redis Queue module."""
+    """A worker that lives in its own process."""
 
-    def __init__(
-        self,
-        queues: list[rq.Queue],
-        name: str,
-        process: Process,
-        conn: aioredis.Redis = None,
-        **kwargs: Any,
+    def __init__(self) -> None:
+        self.process = mp.Process(
+            target=super().__init__,
+            args=([redis_queue],),
+            kwargs={"connection": redis_conn},
+        )
+        self.process.start()
+
+    def close(self) -> None:
+        """Close the worker process."""
+        self.process.terminate()
+        self.process.join()
+
+    @job(queue=redis_queue, connection=redis_conn)  # type: ignore
+    def apply_filter(
+        img: Mat, filters: list[ImageFilter], params: list[dict[str, Any]]
     ) -> None:
-        self.process = process
-        super().__init__(queues, name=name, connection=conn, **kwargs)
-
-    def __del__(self) -> None:
-        self.process.close()
-
-
-async def spawn_worker() -> Worker:
-    """Spawn a new worker, inside a new process."""
-    worker_id = random.getrandbits(10)
-    worker_process = Process(name=f"worker-{worker_id}-process")
-    worker = Worker(
-        [redis_queue],
-        name=f"worker-{worker_id}",
-        process=worker_process,
-        conn=redis_conn,
-    )
-
-    worker_process.start()
-
-    return worker
+        """Start a filter job and apply filter to image."""
+        filter_job = Job(img, filters, params)
+        filter_job = redis_queue.enqueue(filter_job.execute)

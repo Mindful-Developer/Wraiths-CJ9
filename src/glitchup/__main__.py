@@ -1,23 +1,30 @@
 import asyncio
+import json
 import subprocess
+import uuid
 from pathlib import Path
 
 from typing import Any, Type
 
+from cv2 import Mat
 # import httpx
 from fastapi import FastAPI, WebSocket
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from hypercorn.asyncio import serve
 from hypercorn.config import Config
-from pydantic import BaseModel
 
+from rq.command import send_shutdown_command
 from web.filters.builtin.dotted import Dotted  # type: ignore
 from web.filters.builtin.ghosting import Ghosting  # type: ignore
 from web.filters.builtin.metaldot import MetalDot  # type: ignore
 from web.filters.builtin.number import Number  # type: ignore
 from web.filters.image_filter import ImageFilter  # type: ignore
-from web.worker import redis_conn, redis_queue  # type: ignore
+from web.filters.parameter import Parameter  # type: ignore
+from web.models import FilterMetadata  # type: ignore
+from web.worker import Worker, redis_conn, redis_queue  # type: ignore
+
+# from web.factory import FilterFactory  # type: ignore
 
 app = FastAPI()
 BASE_DIR = Path(__file__).resolve().parent
@@ -29,12 +36,27 @@ FILTERS = {
     "984": MetalDot,
 }
 
+@app.on_event("startup")
+async def setup() -> None:
+    """Configure and set a few things on app startup."""
+    redis_conn.sadd(
+        "filters",
+        str(Ghosting.to_dict()),
+        str(Dotted.to_dict()),
+        str(Number.to_dict()),
+        str(MetalDot.to_dict()),
+    )
+
 
 @app.on_event("shutdown")
 async def shutdown() -> None:
     """Shutdown the web server and connections to database."""
+    for worker in Worker.all(queue=redis_queue):
+        send_shutdown_command(redis_conn, worker.name)
+        worker.close()
+
     redis_queue.delete()
-    await redis_conn.close()
+    redis_conn.close()
 
 
 @app.get("/")
@@ -43,15 +65,10 @@ async def root() -> FileResponse:
     return FileResponse(f"{BASE_DIR}/web/static/index.html")
 
 
-class FilterMetadata(BaseModel):
-    """Metadata for a filter."""
-
-    filter_id: int
-    name: str
-    description: str
-    inputs: int
-    # the dict stored here is the result of calling `.to_dict()` on the parameter
-    parameters: list[dict[str, Any]]
+# @app.middleware("http")
+# async def translate_filter_metadata(request: Request, call_next) -> WebSocket:
+#     """Translate filter metadata to JSON."""
+#     ...
 
 
 @app.get("/filters/{filter_id}")
@@ -68,24 +85,66 @@ async def get_filter(filter_id: str) -> JSONResponse:
         content=filter_class.to_dict(),
         )
 
+@app.get("/filters")
+async def get_all_filters() -> JSONResponse:
+    """Return all filters."""
+    filters = redis_conn.smembers("filters")
+
+    return JSONResponse(
+        content={
+            "filters": [
+                dict(FilterMetadata.parse_raw(f.translate(f.maketrans("'()", '"[]'))))
+                for f in filters
+            ]
+        },
+        status_code=200,
+    )
+
 
 @app.post("/filters/create/")
 async def create_filter(filter_metadata: FilterMetadata) -> Type[ImageFilter]:
-    """Create a new filter."""
-    filter_cls = type(f"{filter_metadata.name}", (ImageFilter,), {})
+    """Create a new filter. This is essentially a class factory."""
+
+    @staticmethod
+    def metadata() -> tuple[int, list[Parameter]]:
+        return filter_metadata.inputs, [
+            p for p in [Parameter.from_dict(p) for p in filter_metadata.parameters]
+        ]
+
+    @classmethod
+    def apply(cls, images: list[Mat], params: dict[str, Any]) -> None:
+        """Apply the filter to the image."""
+        ...
+
+    filter_cls = type(
+        f"{filter_metadata.name}",
+        (ImageFilter,),
+        {"metadata": metadata, "apply": apply},
+    )
     filter_cls.__doc__ = filter_metadata.description
     setattr(filter_cls, "filter_id", filter_metadata.filter_id)
 
-    await redis_conn.sadd(
+    redis_conn.sadd(
         "filters",
         str(filter_cls.to_dict()),  # type: ignore
     )
     return filter_cls
 
 
-@app.websocket("/image/apply-filter/{filter_id}")
-async def apply_filter(filter_id: int, ws: WebSocket) -> None:
+@app.post("/images/upload")
+async def upload_image() -> int:
+    """Upload an image to the server."""
+    image_id = uuid.uuid4().int
+
+    return image_id
+
+
+@app.websocket("/images/{image_id}/apply/{filter_id}")
+async def apply_filter_to_image(ws: WebSocket, image_id: int, filter_id: int) -> None:
     """Apply a filter to an image."""
+    await ws.accept()
+    # worker = Worker()
+
     ...
 
 
