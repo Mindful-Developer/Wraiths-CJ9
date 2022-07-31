@@ -7,8 +7,8 @@ from attrs import define, field
 
 __all__ = ("Parameter", "ParamType")
 
-# tuple[int | float, int | float] | None (mypy doesn't like this; the type below hopefully is temporary)
-PARAM_RANGE: TypeAlias = Optional[tuple[Union[int, float], Union[int, float]]]
+PARAM_VALUE: TypeAlias = Union[int, float, str]
+PARAM_RANGE: TypeAlias = tuple[PARAM_VALUE, ...]
 
 
 class ParamType(Enum):
@@ -16,6 +16,7 @@ class ParamType(Enum):
 
     INT = auto()
     FLOAT = auto()
+    ENUM = auto()
 
 
 @define
@@ -24,8 +25,8 @@ class Parameter:
 
     _param_type: ParamType
     _name: str
-    _default: int | float
-    _param_range: PARAM_RANGE = field(default=None)
+    _default: PARAM_VALUE
+    _param_range: Optional[PARAM_RANGE] = field(default=None)
 
     @property
     def param_type(self) -> ParamType:
@@ -38,12 +39,12 @@ class Parameter:
         return self._name
 
     @property
-    def default(self) -> int | float:
+    def default(self) -> PARAM_VALUE:
         """Default value of the parameter"""
         return self._default
 
     @property
-    def param_range(self) -> PARAM_RANGE:
+    def param_range(self) -> Optional[PARAM_RANGE]:
         """Return the range of the parameter"""
         return self._param_range
 
