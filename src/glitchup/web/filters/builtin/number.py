@@ -4,8 +4,8 @@ from typing import Any
 import cv2 as cv
 import numpy as np
 
-from .image_filter import ImageFilter
-from .parameter import Parameter
+from ..image_filter import ImageFilter
+from ..parameter import Parameter
 
 
 class Number(ImageFilter):

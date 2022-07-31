@@ -3,8 +3,8 @@ from typing import Any
 import cv2
 from cv2 import Mat
 
-from .image_filter import ImageFilter
-from .parameter import Parameter, ParamType
+from ..image_filter import ImageFilter
+from ..parameter import Parameter, ParamType
 
 __all__ = ("Ghosting",)
 
@@ -19,7 +19,7 @@ class Ghosting(ImageFilter):
         """Return a tuple containing the inputs and parameters of the filter."""
         return 1, [
             Parameter(
-                ParamType.INT,
+                ParamType.FLOAT,
                 "opacity",
                 default=0.25,
                 param_range=(0.0, 0.75),

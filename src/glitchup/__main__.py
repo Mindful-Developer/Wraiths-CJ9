@@ -1,66 +1,59 @@
 import asyncio
+import uuid
 from pathlib import Path
-from typing import Type
+from typing import Any, Type
 
+from cv2 import Mat
 # import httpx
 from fastapi import FastAPI, WebSocket
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from hypercorn.asyncio import serve
 from hypercorn.config import Config
-from pydantic import BaseModel
-from web.filters.dotted import Dotted  # type: ignore
-from web.filters.ghosting import Ghosting  # type: ignore
+from rq.command import send_shutdown_command
+from web.filters.builtin.dotted import Dotted  # type: ignore
+from web.filters.builtin.ghosting import Ghosting  # type: ignore
+from web.filters.builtin.metaldot import MetalDot  # type: ignore
+from web.filters.builtin.number import Number  # type: ignore
 from web.filters.image_filter import ImageFilter  # type: ignore
-from web.filters.number import Number  # type: ignore
 from web.filters.parameter import Parameter  # type: ignore
-from web.worker import redis_conn, redis_queue  # type: ignore
+from web.models import FilterMetadata  # type: ignore
+from web.worker import Worker, redis_conn, redis_queue  # type: ignore
+
+# from web.factory import FilterFactory  # type: ignore
 
 app = FastAPI()
 BASE_DIR = Path(__file__).resolve().parent
 app.mount("/static", StaticFiles(directory=Path(BASE_DIR, "web/static")), name="static")
+FILTERS = {
+    "981": Dotted,
+    "982": Ghosting,
+    "983": Number,
+    "984": MetalDot,
+}
 
 
 @app.on_event("startup")
 async def setup() -> None:
     """Configure and set a few things on app startup."""
-    await redis_conn.rpush(
+    redis_conn.sadd(
         "filters",
-        str(
-            {
-                "id": Ghosting.filter_id,
-                "name": "Ghosting",
-                "description": Ghosting.__doc__,
-                "inputs": Ghosting.metadata()[0],
-                "parameters": ", ".join(repr(p) for p in Ghosting.metadata()[1]),
-            }
-        ),
-        str(
-            {
-                "id": Dotted.filter_id,
-                "name": "Dotted",
-                "description": Dotted.__doc__,
-                "inputs": Dotted.metadata()[0],
-                "parameters": ", ".join(repr(p) for p in Dotted.metadata()[1]),
-            }
-        ),
-        str(
-            {
-                "id": Number.filter_id,
-                "name": "Number",
-                "description": Number.__doc__,
-                "inputs": Number.metadata()[0],
-                "parameters": ", ".join(repr(p) for p in Number.metadata()[1]),
-            }
-        ),
+        str(Ghosting.to_dict()),
+        str(Dotted.to_dict()),
+        str(Number.to_dict()),
+        str(MetalDot.to_dict()),
     )
 
 
 @app.on_event("shutdown")
 async def shutdown() -> None:
     """Shutdown the web server and connections to database."""
+    for worker in Worker.all(queue=redis_queue):
+        send_shutdown_command(redis_conn, worker.name)
+        worker.close()
+
     redis_queue.delete()
-    await redis_conn.close()
+    redis_conn.close()
 
 
 @app.get("/")
@@ -69,53 +62,86 @@ async def root() -> FileResponse:
     return FileResponse(f"{BASE_DIR}/web/static/index.html")
 
 
-class FilterMetadata(BaseModel):
-    """Metadata for a filter."""
-
-    filter_id: int
-    name: str
-    description: str
-    inputs: int
-    parameters: list[Parameter]
-
-    class Config:
-        arbitrary_types_allowed = True
+# @app.middleware("http")
+# async def translate_filter_metadata(request: Request, call_next) -> WebSocket:
+#     """Translate filter metadata to JSON."""
+#     ...
 
 
-@app.get("/filters/filter/{filter_id}")
-async def get_filter(filter_id: int) -> Type[ImageFilter]:
+@app.get("/filters/{filter_id}")
+async def get_filter(filter_id: str) -> JSONResponse:
     """Get a filter by ID."""
-    ...
+    if filter_id not in FILTERS:
+        return JSONResponse(
+            status_code=404,
+            content={"message": f"Filter {filter_id} not found."},
+        )
+    filter_class = FILTERS[filter_id]
+    return JSONResponse(
+        status_code=200,
+        content=filter_class.to_dict(),
+    )
+
+
+@app.get("/filters")
+async def get_all_filters() -> JSONResponse:
+    """Return all filters."""
+    filters = redis_conn.smembers("filters")
+
+    return JSONResponse(
+        content={
+            "filters": [
+                dict(FilterMetadata.parse_raw(f.translate(f.maketrans("'()", '"[]'))))
+                for f in filters
+            ]
+        },
+        status_code=200,
+    )
 
 
 @app.post("/filters/create/")
 async def create_filter(filter_metadata: FilterMetadata) -> Type[ImageFilter]:
-    """Create a new filter."""
-    filter_cls = type(f"{filter_metadata.name}", (ImageFilter,), {})
+    """Create a new filter. This is essentially a class factory."""
+
+    def metadata() -> tuple[int, list[Parameter]]:
+        return filter_metadata.inputs, [
+            p for p in [Parameter.from_dict(p) for p in filter_metadata.parameters]
+        ]
+
+    def apply(images: list[Mat], params: dict[str, Any]) -> None:
+        """Apply the filter to the image."""
+        ...
+
+    filter_cls = type(
+        f"{filter_metadata.name}",
+        (ImageFilter,),
+        {"metadata": metadata, "apply": apply},
+    )
     filter_cls.__doc__ = filter_metadata.description
     setattr(filter_cls, "filter_id", filter_metadata.filter_id)
 
-    await redis_conn.rpush(
+    redis_conn.sadd(
         "filters",
-        str(
-            {
-                "id": filter_metadata.filter_id,
-                "name": filter_metadata.name,
-                "description": filter_metadata.description,
-                "inputs": filter_metadata.inputs,
-                "parameters": filter_metadata.parameters,
-            }
-        ),
+        str(filter_cls.to_dict()),  # type: ignore
     )
-
     return filter_cls
 
 
-@app.websocket("/image/apply-filter/{filter_id}")
-async def apply_filter(filter_id: int, ws: WebSocket) -> None:
+@app.post("/images/upload")
+async def upload_image() -> int:
+    """Upload an image to the server."""
+    image_id = uuid.uuid4().int
+
+    return image_id
+
+
+@app.websocket("/images/{image_id}/apply/{filter_id}")
+async def apply_filter_to_image(ws: WebSocket, image_id: int, filter_id: int) -> None:
     """Apply a filter to an image."""
+    await ws.accept()
+    # worker = Worker()
+
     ...
 
 
-if __name__ == "__main__":
-    asyncio.run(serve(app, Config()))  # type: ignore
+asyncio.run(serve(app, Config()))  # type: ignore
