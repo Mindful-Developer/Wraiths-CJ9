@@ -8,7 +8,7 @@ from attrs import define, field
 __all__ = ("Parameter", "ParamType")
 
 PARAM_VALUE: TypeAlias = Union[int, float, str]
-PARAM_RANGE: TypeAlias = tuple[Union[int, float, str], ...]
+PARAM_RANGE: TypeAlias = tuple[PARAM_VALUE, ...]
 
 
 class ParamType(Enum):
