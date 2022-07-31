@@ -1,9 +1,11 @@
 import asyncio
+import json
 import subprocess
 import uuid
 from pathlib import Path
-from typing import Type
+from typing import Any, Type
 
+from cv2 import Mat
 # import httpx
 from fastapi import FastAPI, WebSocket
 from fastapi.responses import FileResponse, JSONResponse
@@ -16,8 +18,11 @@ from web.filters.builtin.ghosting import Ghosting  # type: ignore
 from web.filters.builtin.metaldot import MetalDot  # type: ignore
 from web.filters.builtin.number import Number  # type: ignore
 from web.filters.image_filter import ImageFilter  # type: ignore
+from web.filters.parameter import Parameter  # type: ignore
 from web.models import FilterMetadata  # type: ignore
 from web.worker import Worker, redis_conn, redis_queue  # type: ignore
+
+# from web.factory import FilterFactory  # type: ignore
 
 app = FastAPI()
 BASE_DIR = Path(__file__).resolve().parent
@@ -53,6 +58,12 @@ async def root() -> FileResponse:
     return FileResponse(f"{BASE_DIR}/web/static/index.html")
 
 
+# @app.middleware("http")
+# async def translate_filter_metadata(request: Request, call_next) -> WebSocket:
+#     """Translate filter metadata to JSON."""
+#     ...
+
+
 @app.get("/filters")
 async def get_all_filters() -> JSONResponse:
     """Return all filters."""
@@ -70,15 +81,47 @@ async def get_all_filters() -> JSONResponse:
 
 
 @app.get("/filters/filter/{filter_id}")
-async def get_filter(filter_id: int) -> Type[ImageFilter]:
+async def get_filter(filter_id: int) -> JSONResponse:
     """Get a filter by ID."""
-    ...
+    filters = redis_conn.smembers("filters")
+
+    for f in filters:
+        f = json.loads(f.translate(f.maketrans("'()", '"[]')))
+
+        if f["filter_id"] == filter_id:
+            return JSONResponse(
+                content=f,
+                status_code=200,
+            )
+        else:
+            continue
+
+    return JSONResponse(
+        content={"error": "Filter not found."},
+        status_code=404,
+    )
 
 
 @app.post("/filters/create/")
 async def create_filter(filter_metadata: FilterMetadata) -> Type[ImageFilter]:
-    """Create a new filter."""
-    filter_cls = type(f"{filter_metadata.name}", (ImageFilter,), {})
+    """Create a new filter. This is essentially a class factory."""
+
+    @staticmethod
+    def metadata() -> tuple[int, list[Parameter]]:
+        return filter_metadata.inputs, [
+            p for p in [Parameter.from_dict(p) for p in filter_metadata.parameters]
+        ]
+
+    @classmethod
+    def apply(cls, images: list[Mat], params: dict[str, Any]) -> None:
+        """Apply the filter to the image."""
+        ...
+
+    filter_cls = type(
+        f"{filter_metadata.name}",
+        (ImageFilter,),
+        {"metadata": metadata, "apply": apply},
+    )
     filter_cls.__doc__ = filter_metadata.description
     setattr(filter_cls, "filter_id", filter_metadata.filter_id)
 
@@ -91,9 +134,9 @@ async def create_filter(filter_metadata: FilterMetadata) -> Type[ImageFilter]:
 
 
 @app.post("/images/upload")
-async def upload_image() -> uuid.UUID:
+async def upload_image() -> int:
     """Upload an image to the server."""
-    image_id = uuid.uuid4()
+    image_id = uuid.uuid4().int
 
     return image_id
 

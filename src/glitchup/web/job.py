@@ -2,7 +2,8 @@ from typing import Any
 
 from attrs import define
 from cv2 import Mat
-from filters.image_filter import ImageFilter
+
+from .filters.image_filter import ImageFilter
 
 
 @define
