@@ -49,7 +49,6 @@ function createRangeInput(min, max, defaultValue, paramName, smStep) {
   range.innerHTML = `
   <div class="d-flex flex-column align-items-center my-2 text-center">
     <label for="${paramName}" class="form-label text-secondary">${paramName}</label>
-    
     <div class="w-50 d-flex justify-content-center">
       <span class="h6 text-secondary me-2">${min}</span>
       <input class="form-range" id="${paramName}" type="range" min="${min}" max="${max}" value="${defaultValue}" step="${
@@ -57,7 +56,6 @@ function createRangeInput(min, max, defaultValue, paramName, smStep) {
   }"/>
       <span class="h6 text-secondary ms-2">${max}</span>
     </div>
-    
   </div>
   `;
   return range;
