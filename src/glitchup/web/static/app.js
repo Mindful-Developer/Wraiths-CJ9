@@ -62,7 +62,9 @@ function createRangeInput(min, max, defaultValue, paramName, smStep) {
 }
 
 function createDropdownInput(options, defaultValue) {
+  const div = document.createElement("div");
   const dropdown = document.createElement("select");
+  div.classList.add("d-flex", "flex-column", "align-items-center");
   dropdown.classList.add("bg-dark");
   dropdown.classList.add("text-light");
   dropdown.classList.add("my-2");
@@ -75,12 +77,14 @@ function createDropdownInput(options, defaultValue) {
     dropdown.appendChild(optionElement);
   }
   dropdown.value = defaultValue;
-  return dropdown;
+  div.appendChild(dropdown);
+  return div;
 }
 
 async function populate(filterID) {
   generateFlip(false);
   const filterJSON = await getFilter(filterID);
+  console.log(filterJSON);
   const fileInputs = document.getElementById("fileInputs");
   const parameters = document.getElementById("parameters");
   fileInputs.innerHTML = `<header class="bg-success text-center py-2"><h3>Images</h3></header>`;
