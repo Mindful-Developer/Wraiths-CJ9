@@ -12,6 +12,8 @@ from glitchup.web.filters.parameter import Parameter, ParamType
 class PixelSort(ImageFilter):
     """Pixel sorting filter"""
 
+    filter_id = 'Pixel Sort'
+
     NUM_INPUTS: int = 1
     PARAMETERS: list[Parameter] = [Parameter(ParamType.ENUM,
                                              'direction',
@@ -30,9 +32,9 @@ class PixelSort(ImageFilter):
         """Number of input images"""
         return self.NUM_INPUTS
 
-    def get_params(self) -> list[Parameter]:
+    def metadata(self) -> tuple[int, list[Parameter]]:
         """Set of parameters"""
-        return self.PARAMETERS
+        return 1, self.PARAMETERS
 
     def apply(self, images: list[Mat], params: dict[str, Any]) -> None:
         """Apply pixel sort to image"""
@@ -96,16 +98,19 @@ def main() -> None:
     from cv2 import imread, imwrite
     import os
 
+    INPUT_DIR = 'input_images'
+    OUTPUT_DIR = 'output_dir'
+
     filt = PixelSort()
-    for filename in os.listdir('input_images'):
+    for filename in os.listdir(INPUT_DIR):
         print(f'Loading {filename}...')
-        input_path = os.path.join('input_images', filename)
+        input_path = os.path.join(INPUT_DIR, filename)
         name, ext = os.path.splitext(filename)
         img = imread(input_path)
 
         print(f'Saving copy of {filename}')
         output_filename = filename
-        output_path = os.path.join('output_images', output_filename)
+        output_path = os.path.join(OUTPUT_DIR, output_filename)
         imwrite(output_path, img)
 
         for direction in ('horizontal', 'vertical'):
@@ -116,12 +121,12 @@ def main() -> None:
 
                 print(f'Applying PixelSort filter ({direction}, {index_parameter})...')
                 img_copy = img.copy()
-                filt.apply(img_copy, params)
+                filt.apply([img_copy], params)
 
                 output_filename = name + f'-{direction}-{index_parameter}' + ext
 
                 print(f'Saving {output_filename}...')
-                output_path = os.path.join('output_images', output_filename)
+                output_path = os.path.join(OUTPUT_DIR, output_filename)
                 imwrite(output_path, img_copy)
 
 
