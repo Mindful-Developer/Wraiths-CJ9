@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 from enum import Enum, auto
-from typing import Any, Optional, TypeAlias, Union
+from typing import Any, TypeAlias
 
 from attrs import define, field
 
 __all__ = ("Parameter", "ParamType")
 
-PARAM_RANGE: TypeAlias = Optional[tuple[Union[int, float], Union[int, float]]]
+PARAM_RANGE: TypeAlias = tuple[int | float, ...] | None
 
 
 class ParamType(Enum):
