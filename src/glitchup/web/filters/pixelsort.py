@@ -2,8 +2,9 @@
 
 """Pixel sorting filter"""
 
-from cv2 import COLOR_BGR2HSV, COLOR_HSV2BGR, cvtColor, Mat
 from typing import Any
+
+from cv2 import COLOR_BGR2HSV, COLOR_HSV2BGR, cvtColor, Mat
 
 from glitchup.web.filters.image_filter import ImageFilter
 from glitchup.web.filters.parameter import Parameter, ParamType
@@ -95,8 +96,9 @@ class PixelSort(ImageFilter):
 
 def main() -> None:
     """Tests"""
-    from cv2 import imread, imwrite
     import os
+
+    from cv2 import imread, imwrite
 
     INPUT_DIR = 'input_images'
     OUTPUT_DIR = 'output_dir'
