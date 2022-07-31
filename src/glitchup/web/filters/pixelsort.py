@@ -12,7 +12,7 @@ from glitchup.web.filters.parameter import Parameter, ParamType
 class PixelSort(ImageFilter):
     """Pixel sorting filter"""
 
-    filter_id = 'Pixel Sort'
+    filter_id = 985
 
     NUM_INPUTS: int = 1
     PARAMETERS: list[Parameter] = [Parameter(ParamType.ENUM,
